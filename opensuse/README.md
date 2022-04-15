@@ -40,7 +40,7 @@
   - [Cmake](#cmake)
   - [Visual Code](#visual-code-1)
   - [Meld](#meld)
-- [Мискеланоус](#мискеланоус)
+- [Некоторые заметки](#некоторые-заметки)
 - [Термины и сокращения](#термины-и-сокращения)
 - [Полезные ссылки](#полезные-ссылки)
 
@@ -333,6 +333,34 @@ $ sudo zypper repos
 $ sudo zypper removerepo 1 2 ...
 # Проверяем что всё вернулось к стабильности
 $ sudo zypper refresh
+```
+
+После атаки Мордора на Рохан `zypper ref` стал очень долгим, по понятным причинам.
+Но к счастью те немногие эльфы, что сохранились в Мордоре создали и сохранили локальные репозитории `OpenSuse`.
+
+Базовый `url` у них: `https://mirror.yandex.ru/opensuse`.
+
+Вам в любом случае будет необходимо заменить оригинальный `url` репозиториев на `yandex`-овский.
+
+Переходим в папку: `/etc/zypp/repos.d`, и пользуемся волшебной командой: `sudo vim *`.
+
+В каждом файле меняем `http[s]://download.opensuse.org` на `https://mirror.yandex.ru/opensuse` в свойствах `baseurl` и `gpgkey`. Переходим на следующий файл внутренней командой: `:wn`, в конце обычное `:wq`.
+
+Затем обновляем репозитории: `sudo zypper ref`.
+
+> В яндексе пока нет `security/SELinux/SLE_15_SP3/`, поэтому ставим просто `security/SELinux/SLE_15/`
+
+Поиск пакета по имени содержимого файла:
+
+```sh
+$ zypper se --provides --match-substrings libsso
+```
+
+Распаковка файлов и скриптов архива `rpm`.
+
+```sh
+$ rpm2cpio oracle-xe-11.2.0-1.0.x86_64.rpm | cpio -idmv
+$ rpm -qp --scripts oracle-xe-11.2.0-1.0.x86_64.rpm > scripts.sh
 ```
 
 ## Сертификаты
@@ -977,8 +1005,29 @@ $ cmake --build build -j $(nproc)
 11. Совершите слияние из промежуточной ветки командой `git merge <target_branch>-meld`
 12. Залейте изменения на `GitLab`, убедитесь, что всё собирается на `CI`
 
-# Мискеланоус
+# Некоторые заметки
 
+Полезные команды терминала:
+
+```sh
+# Скачивание файла с curl
+$ curl -O https://domain.org/file
+# Поиск в файловой системе по шаблону имени файла
+$ find /some/where -name "startsWith*"
+# Сортировать фалы по кол-ву строк
+$ find . -type f -name "*.cpp" -exec wc -l {} + | sort -rn
+# Команда с помощью которой можно проверить тип системы инициализации
+$ ps -s1 | awk '{print $4}'| grep -Ev "CMD"
+# Поиск в `yum` по частичному имени пакета
+$ yum search <partial-name>
+# Взять `fingerprint` с ключа:
+$ ssh-keygen -E md5 -lf id_rsa
+# Скопировать файл в контейнер Docker-а
+$ docker copy <file> <container_id>:/path
+# Поиск по содержимому файлов
+$ grep -ilR
+```
+---
 Папки с `unit`-ами `systemd` в `OpenSuse`:
 
 1. `/etc/systemd/system/`

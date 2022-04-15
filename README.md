@@ -21,12 +21,14 @@
   - [Святая война](#святая-война)
   - [Принцип зёрныщка](#принцип-зёрныщка)
 - [Стиль кода](#стиль-кода)
-- [Zypper](#zypper)
 - [Locate](#locate)
 - [Lynx](#lynx)
 - [Python](#python)
 - [Сеть](#сеть)
-- [Мискеланоус](#мискеланоус)
+- [Visual Studio Code](#visual-studio-code)
+- [C++](#c)
+- [Cygwin](#cygwin)
+- [Некоторые заметки](#некоторые-заметки)
 - [Полезные ссылки](#полезные-ссылки)
 
 # Философия
@@ -63,23 +65,6 @@
 я пересмотрела некоторые аспекты бытия и решительно отстаиваю пробелы для отступов и перенос строки в конце текстовых файлов. О его важности можно почитать [тут][10].
 
 Поставьте галочку в опции `files.insertFinalNewline` в `VS Code`.
-
-# Zypper
-
-После атаки Мордора на Рохан `zypper ref` стал очень долгим, по понятным причинам.
-Но к счастью те немногие эльфы, что сохранились в Мордоре создали и сохранили локальные репозитории `OpenSuse`.
-
-Базовый `url` у них: `https://mirror.yandex.ru/opensuse`.
-
-Вам в любом случае будет необходимо заменить оригинальный `url` репозиториев на `yandex`-овский.
-
-Переходим в папку: `/etc/zypp/repos.d`, и пользуемся волшебной командой: `sudo vim *`.
-
-В каждом файле меняем `http[s]://download.opensuse.org` на `https://mirror.yandex.ru/opensuse` в свойствах `baseurl` и `gpgkey`. Переходим на следующий файл внутренней командой: `:wn`, в конце обычное `:wq`.
-
-Затем обновляем репозитории: `sudo zypper ref`.
-
-> В яндексе пока нет `security/SELinux/SLE_15_SP3/`, поэтому ставим просто `security/SELinux/SLE_15/`
 
 # Locate
 
@@ -168,29 +153,19 @@ $ PID=$($COMMAND)
 $ kill -9 $PID
 ```
 
-# Мискеланоус
-
-C++
-
-Для того, что бы автоматом подставить платформонезависимый идентификатор целого числа в формате `sprintf`, исзользуйте следующий шаблон:
-
-```c++
-sprintf(buff, "%" PRId64, num);
-```
----
-Visual Studio Code
+# Visual Studio Code
 
 Навигация по посещённым участкам:
 
 * Назад: `ctrl + alt + -`
 * Вперёд: `ctr + shidt + -`
 
----
-Конфигурация `git`-а:
+# C++
 
-```sh
-# Отменяем less подобное поведение git branch
-$ git config --global pager.branch false
+Для того, что бы автоматом подставить платформонезависимый идентификатор целого числа в формате `sprintf`, исзользуйте следующий шаблон:
+
+```c++
+sprintf(buff, "%" PRId64, num);
 ```
 ---
 Пример экранирования слешей в путях сохранённых в переменных при передачи переменных команде `sed`:
@@ -200,86 +175,7 @@ $ OLD_LIB=/path/to/old/lib
 $ NEW_LIB=/path/to/new/lib
 $ sed -i "s/${OLD_LIB//\//\\/}/${NEW_LIB//\//\\/}/" file
 ```
----
-Полезные команды `openssl`:
 
-```sh
-# Подключиться к серверу
-$ openssl s_client -connect gitlab.belowess.ru:443
-# Слепок сертификата [-sha256|-sha1]
-$ openssl x509 -noout -fingerprint -sha1 -inform pem -in KoshDomain.pem
-# Информация о сертификате
-$ openssl x509 -text -noout -in KoshDomain.pem
-```
----
-Команды терминала:
-
-```sh
-# Скачивание файла с curl
-$ curl -O https://domain.org/file
-# Поиск в файловой системе по шаблону имени файла
-$ find /some/where -name "startsWith*"
-# Сортировать фалы по кол-ву строк
-$ find . -type f -name "*.cpp" -exec wc -l {} + | sort -rn
-# Команда с помощью которой можно проверить тип системы инициализации
-$ ps -s1 | awk '{print $4}'| grep -Ev "CMD"
-# Поиск в `yum` по частичному имени пакета
-$ yum search <partial-name>
-# Взять `fingerprint` с ключа:
-$ ssh-keygen -E md5 -lf id_rsa
-# Скопировать файл в контейнер Docker-а
-$ docker copy <file> <container_id>:/path
-# Поиск по содержимому файлов
-$ grep -ilR
-```
----
-Для установка `cygwin`-а без прав админа запустите из `cmd` `Windows`-а:
-
-```cmd
-> setup-x86_64.exe --no-admin
-```
-
----
-Распаковка файлов и скриптов архива `rpm`. Понадобится для создания устанавливаемого пакета `Oracle XE`.
-
-```sh
-$ rpm2cpio oracle-xe-11.2.0-1.0.x86_64.rpm | cpio -idmv
-$ rpm -qp --scripts oracle-xe-11.2.0-1.0.x86_64.rpm > scripts.sh
-```
----
-Установка `git`-а в `Docker`-е:
-
-```sh
-RUN set -o errexit -o nounset \
-    && perl -MCPAN -e "ExtUtils::MakeMaker" \
-    && wget --no-verbose --no-check-certificate --output-document=git.tar.xz \
-       https://mirrors.edge.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.xz > /dev/null 2>&1 \
-    && mkdir /opt/git \
-    && tar -xvf git.tar.xz > /dev/null \
-    && rm git.tar.xz \
-    && mv git-${GIT_VERSION} /opt/gitsrc \
-    && cd /opt/gitsrc \
-    && ./configure \
-       --prefix=/opt/git \
-       --with-curl \
-       --with-openssl \
-       --with-expat \
-       CFLAGS=-m32 > /dev/null 2>&1 \
-    && make install > /dev/null 2>&1 \
-    && rm /usr/bin/git \
-    && ln -s /opt/git/bin/git /usr/bin/git \
-    && git --version
-```
----
-Размеры папок для всех случаев жизни, включая `Docker`:
-
-```sh
-#!/bin/bash
-for name in `sudo ls -a $1`; do
-  sudo du -sh $1/$name
-done
-```
----
 Вызов `cmake` с конкретным `gcc\g++`:
 
 ```sh
@@ -290,6 +186,25 @@ export CXX=/usr/bin/g++-9
 
 rm -rf CMakeFiles/ CMakeCache.txt cmake_install.cmake *_autogen
 cmake .
+```
+
+# Cygwin
+
+Для установка `cygwin`-а без прав админа запустите из `cmd` `Windows`-а:
+
+```cmd
+> setup-x86_64.exe --no-admin
+```
+
+# Некоторые заметки
+
+Размеры папок для всех случаев жизни, включая `Docker`:
+
+```sh
+#!/bin/bash
+for name in `sudo ls -a $1`; do
+  sudo du -sh $1/$name
+done
 ```
 
 # Полезные ссылки
