@@ -1,0 +1,20 @@
+version: "3"
+services:
+  runner:
+    deploy:
+      replicas: 1
+      placement:
+        constraints: [node.labels.main == true ]
+    image: gitlab/gitlab-runner:alpine-v13.10.0
+    volumes:
+      - config:/etc/gitlab-runner
+      - home:/home/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+volumes:
+  home:
+  config:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '/srv/nibelungen/config/'

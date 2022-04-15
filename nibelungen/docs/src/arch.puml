@@ -1,0 +1,40 @@
+@startuml arch
+
+actor "DevOps" as devops
+actor "Зигфрид" as siegfrid
+actor "Кримхильда" as kriemhild
+
+cloud "GitLab" {
+    database "Проект\nSiegfrid" as proj_siegfrid
+    database "Проект\nKriemhild" as proj_kriemhild
+}
+
+cloud "Docker" {
+    component "Процесс Docker-а" as docker
+    component "Главный Runner" as runner
+    component "Executor" as ex_siegfrid
+    component "Executor" as ex_kriemhild
+}
+
+cloud "Хост" {
+    frame "/srv/gitlab-runner/config/" {
+        component "config.toml" as config
+    }
+    frame "/var/run/" {
+        () "docker.sock" as sock
+    }
+}
+
+runner -down-> sock
+runner -down-> config
+sock -up-> docker
+docker -up-> ex_siegfrid
+docker -up-> ex_kriemhild
+docker -up-> runner
+ex_siegfrid -up-> proj_siegfrid
+ex_kriemhild -up-> proj_kriemhild
+siegfrid -down-> proj_siegfrid
+kriemhild -down-> proj_kriemhild
+devops -up-> config
+
+@enduml

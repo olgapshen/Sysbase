@@ -1,0 +1,4 @@
+* добавить про cacerts
+* tar -czvf certs.tar.gz certs/
+* set -o errexit -o nounset
+* make .PHONY

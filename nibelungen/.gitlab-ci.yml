@@ -1,0 +1,107 @@
+variables:
+  GIT_STRATEGY: fetch
+
+stages:
+  - build
+  - test
+  - pack
+  - upload
+  - clean
+
+build_job:
+  stage: build
+  needs: []
+  tags:
+    - nibelungen
+  script:
+    - ./nibelungen/ci/build.sh
+  artifacts:
+    expire_in: 10 min
+    paths:
+      - nibelungen/output/siegfrid.txt
+      - nibelungen/output/kriemhild.txt
+
+test_job:
+  stage: test
+  needs: ["build_job"]
+  tags:
+    - nibelungen
+  script:
+    - ./nibelungen/ci/test.sh
+  dependencies:
+    - build_job
+
+pack_job:
+  stage: pack
+  needs: ["build_job", "test_job"]
+  tags:
+    - nibelungen
+  script:
+    - ./nibelungen/ci/pack.sh
+  artifacts:
+    expire_in: 10 min
+    paths:
+      - nibelungen/output/nibelungen.txt
+  dependencies:
+    - build_job
+    - test_job
+
+upload_job:
+  except:
+    refs:
+    - master
+  stage: upload
+  needs: ["build_job", "test_job", "pack_job"]
+  tags:
+    - nibelungen
+  script:
+    - BELOWESS_VERSION=$(./nibelungen/ci/version.sh)
+    - PACKAGE=$(title.sh $CI_COMMIT_BRANCH $BELOWESS_VERSION)
+    - upload.sh
+        JOB
+        $CI_JOB_TOKEN
+        $CI_PROJECT_ID
+        $PACKAGE
+        $BELOWESS_VERSION
+        nibelungen/output/nibelungen.txt
+        nibelungen.txt
+  dependencies:
+    - build_job
+    - test_job
+    - pack_job
+
+upload_job_master:
+  only:
+    refs:
+    - master
+  stage: upload
+  needs: ["build_job", "test_job", "pack_job"]
+  tags:
+    - nibelungen
+  script:
+    - BELOWESS_VERSION=$(./nibelungen/ci/version.sh)
+    - upload.sh
+        JOB
+        $CI_JOB_TOKEN
+        $CI_PROJECT_ID
+        $BELOWESS_VERSION
+        $BELOWESS_VERSION
+        nibelungen/output/nibelungen.txt
+        nibelungen.txt
+  dependencies:
+    - build_job
+    - test_job
+    - pack_job
+
+clean_job:
+  stage: clean
+  needs: []
+  when: manual
+  variables:
+    PRIVATE_TOKEN: "~token~"
+    DAYS: 30
+    HOURS: 0
+  tags:
+    - nibelungen
+  script:
+    - clean.py $CI_PROJECT_ID $PRIVATE_TOKEN $DAYS $HOURS
