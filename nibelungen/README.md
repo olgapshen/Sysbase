@@ -33,7 +33,11 @@
 - [Оглавление](#оглавление)
 - [Концепция](#концепция)
 - [Настройка на сервере](#настройка-на-сервере)
+- [Docker](#docker)
+  - [Установка](#установка)
+  - [Swarm](#swarm)
   - [Настройка реестра Docker-а](#настройка-реестра-docker-а)
+  - [Зависания и производительность](#зависания-и-производительность)
   - [Создание папки на хосте](#создание-папки-на-хосте)
   - [Загрузка корневого сертификата](#загрузка-корневого-сертификата)
   - [Запуск Runner-а](#запуск-runner-а)
@@ -72,29 +76,69 @@
 
 Все шаги нижеследующей инструкции расписанны ниже.
 
-1. Настройте `Docker Registry`
-2. Создайте папку `/srv/nibelungen/config/certs/` на хосте
-3. Загрузите корневой сертификат
-4. Из корня проекта запустите `runner` командой `./deploy.sh`
-5. Настройте параллельность для главного `runner`-а
+1. Установите `Docker`
+2. Настройте `Docker Registry`
+3. Создайте папку `/srv/nibelungen/config/certs/` на хосте
+4. Загрузите корневой сертификат
+5. Из корня проекта запустите `runner` командой `./deploy.sh`
+6. Настройте параллельность для главного `runner`-а
+
+# Docker
+
+Инфраструктура докера нужна для разработки контейнера в рамках которого `GitLab CI` будет собирать проект на сервере сборки.
+
+## Установка
+
+> Тут описывается установка `Docker`-а на хосте `OpenSuse`
+
+Установка `Docker`-а:
+
+```sh
+# To install the docker and docker-compose packages
+$ sudo zypper install docker python3-docker-compose
+# To start the docker daemon during boot
+$ sudo systemctl enable docker
+# To join the docker group that is allowed to use the docker daemon
+$ sudo usermod -G docker -a $USER
+# Restart the docker daemon
+$ sudo systemctl restart docker
+```
+Тут очень важно сделать `logout` и `login`, что бы права группы применились к вашему пользователю.
+
+```sh
+# Verify docker is running
+$ docker version
+# This will pull down and run the, "Hello World" docker container from dockerhub
+$ docker run --rm hello-world
+```
+
+## Swarm
+
+Инициализируйте `Swarm`:
+
+```sh
+$ docker swarm init
+```
 
 ## Настройка реестра Docker-а
 
-> Данная часть не закончена и представляет из себя в большей степени шаблон
+> В связи с избыточной сложностью рекомендуется НЕ устанавливать `Docker Registry` на станциях разработки
 
-Удалите сервис и секреты, если они уже настроены и настроены неудовлетворительно:
+Установка реестра необходима для воспроизведения штатного режима работы сервера на котором будет крутиться образ. В штатном режиме образ будет скачиваться стеком `swarm`-а с реестра.
 
-```
-$ docker service rm registry
-$ docker secret rm KoshDomain.key
-$ docker secret rm KoshDomain.crt
+Данные `registry` находятся в `/opt/docker/data`.
+
+Добавьте метку на наш едиственный узел:
+
+```sh
+$ docker node update --label-add registry=true $HOSTNAME
 ```
 
 Создайте самиздатный сертефикат, если не распологаете иным, изменив пути и данные на необходимые:
 
-```
-$ mkdir /home/helga/certs/
-$ cd /home/helga/certs/
+```sh
+$ mkdir $HOME/certs/
+$ cd $HOME/certs/
 $ openssl req \
   -newkey rsa:4096 -nodes -sha256 -keyout KoshDomain.key \
   -x509 -days 365 -out KoshDomain.crt \
@@ -103,39 +147,80 @@ $ openssl req \
 
 Установите сертификат в системе:
 
-```
+```sh
 $ sudo cp KoshDomain.crt /usr/share/ca-certificates
-$ sudo dpkg-reconfigure ca-certificates
+$ sudo update-ca-certificates ca-certificates
 ```
-Создайте секреты:
 
+А так же конкретно для `Docker`-а:
+
+```sh
+# Убедитесь, что требуемая папка существует
+$ sudo cp KoshDomain.crt /etc/docker/certs.d/KoshDomain\:8443/
 ```
+
+Удалите сервис и секреты, если они уже настроены и настроены неудовлетворительно:
+
+```sh
+$ docker service rm registry
+$ docker secret rm KoshDomain.key
+$ docker secret rm KoshDomain.crt
+```
+
+Добавим секреты `Docker`-а:
+
+```sh
 $ docker secret create KoshDomain.key KoshDomain.key
 $ docker secret create KoshDomain.crt KoshDomain.crt
 ```
 
-Настройте всё необходимое для сервиса:
+Создайте сервис командой:
 
-```
-$ sudo cp KoshDomain.crt /etc/docker/certs.d/KoshDomain\:8443/
-$ sudo mkdir /srv/registry
-$ docker node update --label-add registry=true KoshDomain
-```
-Создайте сервис:
-
-```
+```sh
 $ sudo docker service create \
-	--name registry \
-	--secret KoshDomain.crt \
-	--secret KoshDomain.key \
-	--constraint 'node.labels.registry==true' \
-	--mount type=bind,src=/srv/registry,dst=/var/lib/registry \
-	-e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
-	-e REGISTRY_HTTP_TLS_CERTIFICATE=/run/secrets/KoshDomain.crt \
-	-e REGISTRY_HTTP_TLS_KEY=/run/secrets/KoshDomain.key \
-	--publish published=8443,target=443 \
-	--replicas 1 \
-	registry:2
+  --name registry \
+  --secret KoshDomain.crt \
+  --secret KoshDomain.key \
+  --constraint 'node.labels.registry==true' \
+  -e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
+  -e REGISTRY_HTTP_TLS_CERTIFICATE=/run/secrets/KoshDomain.crt \
+  -e REGISTRY_HTTP_TLS_KEY=/run/secrets/KoshDomain.key \
+  --publish published=8443,target=443 \
+  --replicas 1 \
+  registry:2
+```
+
+Если необходимо примонтировать хранилище реестра на видимую папку, добавьте
+`--mount type=bind,src=/opt/docker/data,dst=/var/lib/registry` в опции вызова.
+
+Для того, что бы посмотреть состояние репозитория, вы можете воспользоваться следующими командами:
+
+```sh
+# Проверка статуса сервиса
+$ docker service inspect registry --pretty
+# Просмотр содержимого репозитория
+$ curl -k -X GET https://$HOSTNAME:8443/v2/_catalog | python -m json.tool
+# Просмотр тегов конкретного образа
+$ curl -k -X GET https://$HOSTNAME:8443/v2/<image>/tags/list | python -m json.tool
+```
+
+> В связи со сложностью активации реестра `Docker`-а с самописным артефактом, взаимодействие с реестром пока не налажено
+
+## Зависания и производительность
+
+`Docker` при сборках может начать *не-по-детски* зависать. Это значит, что скопилось много мусора. Очистить его мы сможем, с помощью команды:
+
+```sh
+$ docker system prune -a
+```
+
+Очень рекомендуется компановать команды оболочки в одну дериктиву `RUN` используя два амперсанда и слеш, к примеру:
+
+```Docker
+RUN mkdir /opt/qt4 && \
+    cd /opt/qt4 && \
+    /root/qt4config.sh $QT_VER && \
+    make -j$(nproc)
 ```
 
 ## Создание папки на хосте
@@ -146,7 +231,7 @@ $ sudo docker service create \
 
 Подключитесь к хосту на котором будут бежать `GitLab Runner` и дочерние `Executor`-ы.
 
-OS хоста должна относиться к семейству Linux.
+`OS` хоста должна относиться к семейству Linux.
 
 Создайте папку:
 

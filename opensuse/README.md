@@ -15,17 +15,9 @@
   - [Внешние папки](#внешние-папки)
   - [Настройка сети](#настройка-сети)
   - [Локаль](#локаль)
-  - [Encode НКВД](#encode-нквд)
-  - [Cygwin](#cygwin)
   - [Zypper](#zypper)
   - [Сертификаты](#сертификаты)
   - [Git](#git)
-- [Аппликативные компоненты](#аппликативные-компоненты)
-- [Docker](#docker)
-  - [Установка](#установка)
-  - [Swarm](#swarm)
-  - [Registry](#registry)
-  - [Зависания и производительность](#зависания-и-производительность)
 - [Сборка Qt](#сборка-qt)
   - [Openssl](#openssl)
   - [Репозиторий и готовые сборки](#репозиторий-и-готовые-сборки)
@@ -282,38 +274,6 @@ main.cpp: C source, ISO-8859 text
 export NLS_LANG='AMERICAN_AMERICA.CL8MSWIN1251'
 ```
 
-## Encode НКВД
-
-Конечно, ни кто не удивится узнав, что во многих компаниях до сих пор везде используется \*\*\* кодировка `НКВД` со всеми прелестями голодомора и прочей коммунистической \*\*\*. Этот большевистский ужас нужно уничтожать не жалея сил и времени, потому что как минимум нормально существовать в наше время с кодировочными страницами `ANSI` не представляется возможным. Посему, я всегда перевожу все проекты на `UTF-8`.
-
-Я не нашла достаточно простого способа сделать это автоматом, по этому воспользовалась `Notepad++`, кстати на `Linux`-е это сделать намного сложнее.
-
-Для того, что бы локализовать (найти) все файлы заражённые большевизмом на `Wind`-е, возспользуйтесь `Cygwin`-ом:
-
-```sh
-$ cd /path/to/repo
-$ file * | grep ISO
-```
-
-Вышли почти все `*.cpp` файлы и некоторые `*.h`. Я открыла их в `Notepad++` и воспользовалась опцией `Encoding -> Convert to UTF-8`. Преимущество ручного метода в том, что сразу видны результаты преобразования. При этом битым оказался к примеру `un_app.h`, туда кирилицу я перенесла вручную после перекодировки, возможно будут ещё пару подобных файлов.
-
-> Важно! Возможно были перекодированы так же некоторые строки, подлежащие записи в БД, а базы данных как известно до сих пор удерживаются большевиками; если так, нужно будет точечно использовать функции перекодировки из кода `C++`
-
-Обратите внимание на главу посвящённую `Cygwin`-у по некоторым нюансам.
-
-## Cygwin
-
-Вам возможно понадобится использовать `Cygwin` с `Wind`-ы для некоторых задачь, типа перекодировки страниц. Важно в рамках `Cygwin`-а установить следующие настройки, обратите внимание, что используется `--global` для задания глобальных настроек, вы можете опустить эту опцию для конфигурации только репозитория:
-
-```sh
-# Имя пользователя в рамках глобальных настроек
-$ git config --global --edit
-# Сохранять LF (line feed) в репозитори
-$ git config core.autocrlf input
-# Игнорировать права запуска файла, тк в cygwin-е это право недоступно
-$ git config core.filemode false
-```
-
 ## Zypper
 
 **Zypper - система контроля пакетов**.
@@ -406,114 +366,6 @@ $ git config --global --edit
 5    email = git_id@belowess.org
 6 [init]
 7    defaultBranch = main
-```
-
-# Аппликативные компоненты
-
-# Docker
-
-Инфраструктура докера нужна для разработки контейнера в рамках которого `GitLab CI` будет собирать проект на `appsrv-1` или ином сервере отделения `НИТ`.
-
-> В общем вся концепция `Docker` хорошо описана в проекте [`Нибелунги`](../nibelungen/README.md)
-
-## Установка
-
-Установка `Docker`-а:
-
-```sh
-# To install the docker and docker-compose packages
-$ sudo zypper install docker python3-docker-compose
-# To start the docker daemon during boot
-$ sudo systemctl enable docker
-# To join the docker group that is allowed to use the docker daemon
-$ sudo usermod -G docker -a $USER
-# Restart the docker daemon
-$ sudo systemctl restart docker
-```
-Тут очень важно сделать `logout` и `login`, что бы права группы применились к вашему пользователю.
-
-```sh
-# Verify docker is running
-$ docker version
-# This will pull down and run the, "Hello World" docker container from dockerhub
-$ docker run --rm hello-world
-```
-
-## Swarm
-
-Инициализируйте `Swarm`:
-
-```sh
-$ docker swarm init
-```
-
-## Registry
-
-> В связи с избыточной сложностью рекомендуется НЕ устанавливать `Docker Registry` на станциях разработки
-
-Установка реестра необходима для воспроизведения штатного режима работы сервера на котором будет крутиться образ. В штатном режиме образ будет скачиваться стеком `swarm`-а с реестра.
-
-Данные `registry` находятся в `/opt/docker/data`.
-
-Добавим секреты `Docker`-а:
-
-```sh
-$ cd /opt/certs
-$ docker secret create KoshDomain.key KoshDomain.key
-$ docker secret create KoshDomain.crt KoshDomain.crt
-```
-
-Добавьте метку на наш едиственный узел:
-
-```sh
-$ docker node update --label-add registry=true $HOSTNAME
-```
-
-Создайте сервис командой:
-
-```sh
-$ sudo docker service create \
-  --name registry \
-  --secret KoshDomain.crt \
-  --secret KoshDomain.key \
-  --constraint 'node.labels.registry==true' \
-  --mount type=bind,src=/opt/docker/data,dst=/var/lib/registry \
-  -e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
-  -e REGISTRY_HTTP_TLS_CERTIFICATE=/run/secrets/KoshDomain.crt \
-  -e REGISTRY_HTTP_TLS_KEY=/run/secrets/KoshDomain.key \
-  --publish published=8443,target=443 \
-  --replicas 1 \
-  registry:2
-```
-
-Для того, что бы посмотреть состояние репозитория, вы можете воспользоваться следующими командами:
-
-```sh
-# Проверка статуса сервиса
-$ docker service inspect registry --pretty
-# Просмотр содержимого репозитория
-$ curl -k -X GET https://$HOSTNAME:8443/v2/_catalog | python -m json.tool
-# Просмотр тегов конкретного образа
-$ curl -k -X GET https://$HOSTNAME:8443/v2/<image>/tags/list | python -m json.tool
-```
-
-> В связи со сложностью активации реестра `Docker`-а с самописным артефактом, взаимодействие с реестром пока не налажено
-
-## Зависания и производительность
-
-`Docker` при сборках может начать *не-по-детски* зависать. Это значит, что скопилось много мусора. Очистить его мы сможем, с помощью команды:
-
-```sh
-$ docker system prune -a
-```
-
-Очень рекомендуется компановать команды оболочки в одну дериктиву `RUN` используя два амперсанда и слеш, к примеру:
-
-```Docker
-RUN mkdir /opt/qt4 && \
-    cd /opt/qt4 && \
-    /root/qt4config.sh $QT_VER && \
-    make -j$(nproc)
 ```
 
 # Сборка Qt
@@ -986,6 +838,16 @@ $ cmake --build build -j $(nproc)
 * `PlantUML` (*jebbs*)
 * `Qt tools` (*tonka3000*)
 * `Trailing Spaces` (*Shardul Mahadik*)
+
+Навигация по посещённым участкам:
+
+* Назад: `ctrl + alt + -`
+* Вперёд: `ctr + shidt + -`
+
+Команды плагина `Cmake-Tools`:
+
+* `Build` - `F7`
+* `Debug` - `Ctrl + F5`
 
 ## Meld
 
