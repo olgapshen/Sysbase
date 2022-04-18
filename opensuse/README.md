@@ -764,6 +764,22 @@ $ qmake Guitar.pro
 $ make -j$(nproc)
 ```
 
+Для сборки приложения  с символами отладки, запустите оба `qmake`-а с опциями: `CONFIG+=debug CONFIG+=declarative_debug`:
+
+```sh
+$ qmake CONFIG+=debug CONFIG+=declarative_debug zlib.pro
+$ make -j$(nproc)
+$ qmake CONFIG+=debug CONFIG+=declarative_debug Guitar.pro
+$ make -j$(nproc)
+```
+
+Если вы до этого уже собирали проекты в режиме `release`, то у вас есть уже скомпилированные `*.o` файлы.
+При попытки отладки с `Termdebug` вы получите ошибку при попытке поставить точку останова:
+
+> No source file named ...
+
+В это случае удалите все файлы пораждённые сборкой и пересоберите заново.
+
 ## Visual Code
 
 Создайте в корне проекта заигнорированную папку `.vscode`.
