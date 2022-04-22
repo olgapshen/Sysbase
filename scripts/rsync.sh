@@ -52,6 +52,8 @@ rsync \
   -avzh \
   $ARG \
   --exclude .rignore \
+  --exclude .git \
   --delete \
   $FROM \
   $TO
+
