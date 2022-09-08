@@ -1,0 +1,32 @@
+@startuml xsd
+
+title Валидация модулей ТС
+
+actor "Разработчик ТС" as tsprog
+actor "Разработчик Gradlebcb" as gradleprog
+collections "Коммит в ТС" as commit
+queue "Оповещение о результатах сборки" as mail
+
+
+cloud "GitLab CI" as ci {
+    control "Трансляция" as dfmxml
+    control "Валидация" as validation
+    file "Файл конверсии XSLT" as xslt
+    file "Файл валидации XSD" as xsd
+    card "Файл DFM" as dfm
+    artifact "Файл XML" as xml
+}
+
+tsprog -> commit
+tsprog ..> xsd
+gradleprog ..down..> xslt
+commit -> dfm
+dfm -right-> dfmxml
+dfmxml -down-> xml
+xslt -left-> dfmxml
+xml -down-> validation
+xsd -left-> validation
+validation -down-> mail
+mail -left-> tsprog
+
+@enduml
