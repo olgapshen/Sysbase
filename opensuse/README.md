@@ -15,6 +15,8 @@
 - [Настройка сети](#настройка-сети)
 - [Zypper](#zypper)
 - [Сертификаты](#сертификаты)
+  - [OS](#os)
+  - [Java](#java)
 - [Git](#git)
 - [Сборка Qt](#сборка-qt)
   - [Openssl](#openssl)
@@ -259,6 +261,8 @@ $ rpm -qp --scripts oracle-xe-11.2.0-1.0.x86_64.rpm > scripts.sh
 
 # Сертификаты
 
+## OS
+
 Сертификаты должны распологаться в папке `/opt/certs`. Создаём новый сертификат:
 
 ```sh
@@ -284,6 +288,56 @@ $ sudo update-ca-certificates
 ```
 
 > При изменениях в сертификате, для применения в `Docker registry`, сам `registry` нужно удалить и пересоздать, так же пересоздать секреты. О `Docker registry` написано ниже
+
+## Java
+
+Для `VisualStudio Code` всё же придётся установить сертификаты напрямую в `keystore` `Java`-ы.
+
+Для этого воспользуйтесь скриптом `certs/register-jdk.sh` в данном проекте:
+
+```
+Запуск
+  register-jdk.sh -h
+    -h             вывод справки
+  register-jdk.sh <CERT_FLDR> <JAVA_VER> <COMMAND> <CERTIFICATE> [<DRY_RUN>]
+    <CERT_FLDR>    папка с сертификатами
+    <JAVA_VER>     версия JDK: 8 или 11
+    <COMMAND>      комманда: register или unregister
+    <CERTIFICATE>  имя сертификатат без расширения
+    <DRY_RUN>      сухая прогонка: d
+Примечание:
+  1. Экспортируйте переменную среды JDK_PATH для регистрации
+     сертификатов в пользовательском JDK.
+  2. Используйте сухую прогонку для проедворительной проверки
+     параметров
+Пример
+  export JDK_PATH=/opt/jdk-17
+  register-jdk.sh certs 11 register valkovesi
+```
+
+Сам же `VSCode` требует `JDK 17` для своей работы с кодом `Java`-ы.
+Более того, он возможно будет пытаться запускает проект на этом `JDK`.
+
+Укажите для `IDE` пути к `JDK` в следующем блоке:
+
+```json
+{
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-11",
+            "path": "/usr/lib64/jvm/java-11-openjdk-11/",
+        },
+        {
+            "name": "JavaSE-17",
+            "path": "/home/olga/java/jdk-17.0.4.1+1",
+            "default": true
+        }
+    ]
+}
+```
+
+Разместите этот блок на любом уровне конфигурации, к примеру в файле:
+`~/.config/Code/User/settings.json`
 
 # Git
 
