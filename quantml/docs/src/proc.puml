@@ -1,0 +1,22 @@
+@startuml proc
+
+participant script [
+    =QuantML
+    ----
+    Jupyter Notebook
+]
+database    "rics.csv"       as rics
+control     "Обучение"       as learn
+control     "Прогноз"        as pred
+collections "Расскладки"     as csvs
+database    "output_ml.xlsx" as output
+script <- rics   : Читаем идентификатор акции
+script -> learn  : Обучаем модель
+script <- learn
+script -> pred   : Прогнозируем
+script <- pred
+script -> csvs   : Сохраняем расскладки
+script <- output : Считываем всё содержимое
+script -> output : Добавляем строку в главный файл вывода
+
+@enduml
