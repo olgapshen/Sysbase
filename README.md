@@ -13,6 +13,7 @@
 - [Scripts](scripts/README.md) - скрипты автоматизации
 - [VimIDE](vimide/README.md) - как кодить в `vim` под `C++`
 - [QuantML](quantml/README.md) - задел на небольшой `ML` проект
+- [PLSQL](plsql/README.md) - полезные блоки кода для работы с `Oracle`-ом
 
 # Оглавление
 
