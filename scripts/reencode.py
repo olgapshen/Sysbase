@@ -1,10 +1,21 @@
 import os
+import sys
 import shutil
 import codecs
 from pathlib import Path
 
-mainFolder = "mainFolder"
-outputRepo = "../outputRepo"
+if (len(sys.argv) != 3):
+    print("Перекодировка файлов в UTF-8 из CP1251")
+    print("  reencode.py source target")
+    print("    source  : папка с объектами для перекодировки")
+    print("    target  : уелдевая папка")
+    exit
+
+mainFolder = sys.argv[1]
+outputRepo = sys.argv[2]
+
+print("Источник: " + mainFolder)
+print("Цель: " + outputRepo)
 
 pathlist = Path(mainFolder).glob('**/*.pls')
 BLOCKSIZE = 1048576
@@ -13,7 +24,7 @@ for path in pathlist:
     strInputPath = str(path)
     strOutputPath = outputRepo + "/" + strInputPath;
     print(strInputPath)
-        
+
     try:
         fh = codecs.open(strInputPath, 'r', encoding='utf-8')
         fh.readlines()
@@ -47,4 +58,3 @@ for path in pathlist:
             shutil.copyfile(strInputPath, strOutputPath)
         else:
             print("File already reencoded")
-            
