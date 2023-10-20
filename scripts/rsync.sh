@@ -48,6 +48,8 @@ if [[ -f .rignore ]]; then
     ARG="$ARG --exclude-from=.rignore"
 fi
 
+# При передаче с Linux-а на Windows нужно вместо опции -a
+# использовать только -r
 rsync \
   -avzh \
   $ARG \
