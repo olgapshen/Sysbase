@@ -37,6 +37,7 @@
 - [Java](#java)
   - [Keytool](#keytool)
 - [Gradle](#gradle)
+- [Docker](#docker)
 - [PlantUML](#plantuml)
 - [Meld](#meld)
 - [Visual Code](#visual-code)
@@ -505,6 +506,17 @@ $ gradle --stop
 $ export PARAM=value
 $ ./gradlew --stop
 $ ./gradlew <цель>
+```
+
+# Docker
+
+Поиск образов наследников по идентификатору:
+
+```sh
+for i in $(docker images -q)
+do
+  docker history $i | grep -q e969c38d7c77 && echo $i
+done | sort -u
 ```
 
 # PlantUML
