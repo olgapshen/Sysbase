@@ -4,5 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"plantuml.diagramsRoot": "docs/src",
+        "plantuml.exportOutDir": "docs/out",
+        "files.eol": "\n",
+	}
 }

@@ -2,9 +2,9 @@
 
 title Валидация модулей ТС
 
-actor "Разработчик ТС" as tsprog
-actor "Разработчик Gradlebcb" as gradleprog
-collections "Коммит в ТС" as commit
+actor "Разработчик системы" as tsprog
+actor "Разработчик плагина сборки" as gradleprog
+collections "Коммит в систему" as commit
 queue "Оповещение о результатах сборки" as mail
 
 
