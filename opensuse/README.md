@@ -14,19 +14,19 @@
   - [Первый логин](#первый-логин)
 - [Статическая настройка сети](#статическая-настройка-сети)
 - [Virtual Box](#virtual-box)
-- [Железо](#железо)
 - [Настройки](#настройки)
-  - [sudo](#sudo)
+  - [Суперпользователь](#суперпользователь)
   - [Имя хоста](#имя-хоста)
-  - [ssh](#ssh)
+  - [Удалённый терминал](#удалённый-терминал)
   - [Приложения](#приложения)
   - [Sysscripts](#sysscripts)
+  - [Оболочка терминала](#оболочка-терминала)
+  - [Папки сборок](#папки-сборок)
 - [Расскладка клавиатуры](#расскладка-клавиатуры)
 - [Отключение автообновления](#отключение-автообновления)
 - [Дополнительные пакеты](#дополнительные-пакеты)
   - [Установка Xrdp](#установка-xrdp)
   - [Установка SSH](#установка-ssh)
-- [Терминал](#терминал)
 - [Внешние папки](#внешние-папки)
 - [Настройка сети](#настройка-сети)
 - [Zypper](#zypper)
@@ -34,7 +34,7 @@
   - [OS](#os)
   - [Java](#java)
 - [Git](#git)
-- [Сборка Qt](#сборка-qt)
+- [Qt](#qt)
   - [Openssl](#openssl)
   - [Репозиторий и готовые сборки](#репозиторий-и-готовые-сборки)
   - [Небольшое исследование](#небольшое-исследование)
@@ -42,8 +42,10 @@
   - [Подготовка репозитория](#подготовка-репозитория)
   - [Переход на другие ветки и теги](#переход-на-другие-ветки-и-теги)
   - [Сборка](#сборка)
+- [OpenCV](#opencv)
 - [Guitar](#guitar)
 - [Cmake](#cmake)
+- [Железо](#железо)
 - [Некоторые заметки](#некоторые-заметки)
 - [Термины и сокращения](#термины-и-сокращения)
 - [Полезные ссылки](#полезные-ссылки)
@@ -253,37 +255,9 @@ sudo reboot
 
 Пока система более менее не пришла к стабильному состоянию.
 
-# Железо
-
-Вам очевидно придётся много работать с устройствами, в том числе с `usb`.
-Установите `libusb`:
-
-```sh
-zypper se --provides --match-substrings "libusb"
-zypper in libusb-1_0-0
-```
-
-Добавьте права для разработки на необходимые устройства.
-Выведите список устройств: `lsusb`.
-
-Добавьте правило для необходимых устройств. Создайте файл
-`/etc/udev/rules.d/[nn]-[project].rules`, где `nn` номер правила, а `project`
-имя вашего проекта. Вот шаблон:
-
-```
-SUBSYSTEM=="usb", ATTRS{idVendor}=="1d6b", ATTRS{idProduct}=="0001", MODE="0666"
-SUBSYSTEM=="usb", ATTRS{idVendor}=="1d6b", ATTRS{idProduct}=="0002", MODE="0666"
-```
-
-Перезагрузите `udev`:
-
-```sh
-sudo udevadm control --reload-rules && sudo udevadm trigger
-```
-
 # Настройки
 
-## sudo
+## Суперпользователь
 
 Разработка на `OpenSuse` будет происходить не с пользователем `root` и не с
 аппликативным пользователем, с которым будет запускаться приложение в рабочем
@@ -320,7 +294,7 @@ sudo hostnamectl set-hostname <HOSTNAME>
 192.168.1.30     northwind northwind.ru
 ```
 
-## ssh
+## Удалённый терминал
 
 Убедитесь что вы располагаете публичным ключём вашего приватного, и если нет,
 создайте его:
@@ -352,6 +326,96 @@ ssh-copy-id -i ~/.ssh/id_rsa ilmarinen@host
 
 Скачайте данный репозиторий по пути `$HOME/repos/sysscripts`, далее мы пропишем
 папку `scripts` по пути `$PATH`.
+
+## Оболочка терминала
+
+Создайте полезные для работы переменные и `alias`-ы в `$HOME/.bashrc`. Выберите
+лишь необходимые команды для вашей среды, которые вас стоит внести в `.bashrc`:
+
+```sh
+# $HOME/.bashrc
+
+# Сконфигурировать сессию для Oracle-а
+. /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
+
+# Просим man не спрашивать о номере раздела
+MAN_POSIXLY_CORRECT=1
+
+# Папки с репозиториями
+export REPOS=$HOME/repos
+# папка со сборками
+export BUILDS=$HOME/builds
+# Пользовательские скрипты
+export PATH=$PATH:$REPOS/sysscripts/scripts
+# Путь к репозиторию Qt
+export QT_REPO=$REPOS/qt5
+# Путь к репозиторию OpenCV
+export CV_REPO=$REPOS/opencv
+# Путь к QT_HOME
+export QT_HOME=/opt/qt
+# Путь к OpenCV
+export CV_HOME=/opt/opencv
+
+# Переконфигурируем Qt
+alias qt5config="$QT_REPO/configure \
+  -prefix $QT_HOME \
+  -confirm-license \
+  -opensource \
+  -no-opengl \
+  -no-xkbcommon \
+  -skip qtwebengine \
+  -nomake examples \
+  -nomake tests"
+
+alias cv4config="cmake \
+  -DCMAKE_BUILD_TYPE=DEBUG \
+  -DCMAKE_INSTALL_PREFIX=$CV_HOME $CV_REPO"
+
+# Удаляем внутренние репозитории не под контролем корневого репозитория
+alias untracked="git ls-files --others --exclude-standard | xargs rm -rf"
+# полностью очищаем папку
+alias fullclean="rm -rf ..?* .[!.]* *"
+# Просмотр дерева файловой системы
+alias countf="find . -type f | wc -l"
+# Объём папки
+alias sized="du -sh ."
+# Подсчёт количества файлов в папке
+alias treeless="tree -L 3 | less"
+# Монтируем папку с хоста в случае виртуалки
+alias share="sudo mount -t vboxsf share /mnt/share/"
+# Сборка образа CentOS
+alias buildcent="docker build -f DockerfileCentOS -t belowess_centos ."
+# Сборка образа OpenSuse
+alias buildsuse="docker build -f DockerfileOpenSuse -t belowess_suse ."
+# Запустить контейнер centos в интерактивном режиме - удалить в будущем
+alias runcent="docker run -it belowess_centos /bin/bash"
+# Запустить контейнер opensuse в интерактивном режиме - удалить в будущем
+alias runsuse="docker run -it belowess_opensuse /bin/bash"
+# Удалить файлы сгенерированные CMake
+alias cmrm="rm -rf CMakeFiles/ CMakeCache.txt cmake_install.cmake pos_autogen"
+```
+
+> Экспорт переменных с помощью команды `export` важен, иначе данную переменную
+> не будет видно в вызывающем скрипте
+
+## Папки сборок
+
+Для сборки `Qt` и `OpenCV` нам стоит подготовить специальные папки. Можно было
+бы штатно установить их в обшую файловую систему, но они на столько уникальны
+что было решено установить их отдельно. В папках `QT_HOME` и `CV_HOME` будут
+располагаться бинарники, но для установки нам потребуются права записи.
+
+```sh
+sudo mkdir -p $QT_HOME $CV_HOME
+sudo chgrp -R $(id -gn $(whoami)) $QT_HOME $CV_HOME
+sudo chmod g+w -R $(id -gn $(whoami)) $QT_HOME $CV_HOME
+```
+
+Промежуточные - объектные файлы, будем располагать в папках `$HOME/builds`:
+
+```sh
+mkdir -p $BUILDS/qt5 $BUILDS/opencv
+```
 
 # Расскладка клавиатуры
 
@@ -455,71 +519,6 @@ sudo systemctl start sshd
 sudo firewall-cmd --permanent --zone=public --add-service=ssh
 sudo firewall-cmd --reload
 ```
-
-# Терминал
-
-Создайте полезные для работы переменные и `alias`-ы в `$HOME/.bashrc`. Выберите
-лишь необходимые команды для вашей среды, которые вас стоит внести в `.bashrc`:
-
-```sh
-# $HOME/.bashrc
-
-# Сконфигурировать сессию для Oracle-а
-. /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
-
-# Просим man не спрашивать о номере раздела
-MAN_POSIXLY_CORRECT=1
-
-# Папки с репозиториями
-export REPOS=$HOME/repos
-# Пользовательские скрипты
-export PATH=$PATH:$HOME/scripts:$REPOS/sysscripts/scripts
-# Устанавливаем путь к репозиторию Qt
-export QT_REPO=$REPOS/qt5
-# Папка, где непосредственно происходит сборка Qt
-export QT_BUILD=/opt/qt5/
-# Путь к QT_HOME
-export QT_HOME=$QT_BUILD/qtbase
-
-# Монтируем папку с хоста в случае виртуалки
-alias share="sudo mount -t vboxsf share /mnt/share/"
-
-# Удаляем внутренние репозитории не под контролем корневого репозитория
-alias untracked="git ls-files --others --exclude-standard | xargs rm -rf"
-
-# Переконфигурируем Qt
-alias qt5config="$QT_REPO/configure \
-  -prefix $QT_BUILD/qtbase \
-  -confirm-license \
-  -opensource \
-  -no-opengl \
-  -no-xkbcommon \
-  -skip qtwebengine \
-  -nomake examples \
-  -nomake tests"
-
-# полностью очищаем папку
-alias fullclean="rm -rf ..?* .[!.]* *"
-# Просмотр дерева файловой системы
-alias countf="find . -type f | wc -l"
-# Объём папки
-alias sized="du -sh ."
-# Подсчёт количества файлов в папке
-alias treeless="tree -L 3 | less"
-# Сборка образа CentOS
-alias buildcent="docker build -f DockerfileCentOS -t belowess_centos ."
-# Сборка образа OpenSuse
-alias buildsuse="docker build -f DockerfileOpenSuse -t belowess_suse ."
-# Запустить контейнер centos в интерактивном режиме - удалить в будущем
-alias runcent="docker run -it belowess_centos /bin/bash"
-# Запустить контейнер opensuse в интерактивном режиме - удалить в будущем
-alias runsuse="docker run -it belowess_opensuse /bin/bash"
-# Удалить файлы сгенерированные CMake
-alias cmrm="rm -rf CMakeFiles/ CMakeCache.txt cmake_install.cmake pos_autogen"
-```
-
-> Экспорт переменных с помощью команды `export` важен, иначе данную переменную
-> не будет видно в вызывающем скрипте
 
 # Внешние папки
 
@@ -778,7 +777,7 @@ git config --global --edit
 7    defaultBranch = main
 ```
 
-# Сборка Qt
+# Qt
 
 `Qt` можно собрать из двух источников:
 
@@ -1036,7 +1035,6 @@ sudo zypper in libnss_nis2
 ```sh
 cd $QT_REPO
 git clone git://code.qt.io/qt/qt5.git
-cd qt5
 ```
 
 Проект имеет большое количество веток и тегов. Не всё `ref`-ы консистенты,
@@ -1050,6 +1048,7 @@ cd qt5
 Выберите нужную ветку-версию, или тег и переключитесь на неё (к примеру `5.6`):
 
 ```sh
+cd qt5
 # Выберите ветку
 git branch -r
 # Или тег
@@ -1189,10 +1188,7 @@ perl init-repository --module-subset=default,-qtwebengine -f
 начальную фазу сборки (инициализацию) в папке `qtbase`.
 
 ```sh
-# Создаём папку и настраиваем права
-sudo mkdir /opt/qt5
-sudo chgrp ... && sudo chmod g+w qt5
-cd /opt/qt5
+cd $BUILDS/qt5
 # Выполняем инициализацию
 $QT_REPO/configure -h
 # Запускаем сборку
@@ -1252,46 +1248,36 @@ make -j$(nproc)
 > запустите `make` без параметра `-j`, что бы избежать распаралеливание и
 > оставить ошибку в последних строчках вывода.
 
-Если нужно переключится на другую ветку или тег, к примеру `v6.2.3`, выполните:
-
-```sh
-cd $QT_REPO
-git checkout v6.3.2
-# По этому используем средства самого git-а
-git submodule update --init --recursive --force
-# Далее оригинальный скрипт инициализации init-repository
-# и обязательно с опцией -f
-perl init-repository -f
-git submodule foreach --recursive "git clean -dfx" && git clean -dfx
-# При необходимости, если всё плохо, сделайте reset --hard
-# git submodule foreach --recursive "git reset --hard" && git reset --hard
-# Используйте alias untracked для удаления оставленных файлов
-untracked
-cd /opt/qt5
-# Очистите целивую папку
-rm -rf ..?* .[!.]* *
-# Запускаем скрипт configure в репозитории Qt
-qt5config
-# Перезапускаем сборку
-make -j$(nproc)
-```
+Если нужно переключится на другую ветку или тег, к примеру `v6.2.3`,
+[смотрите](#переход-на-другие-ветки-и-теги) инструкцию выше.
 
 > Если вы собираете в распараллеленом режиме (опция `-j`), и сборка в одном из
 > потоков упала, то при возобновлении, хоть и будучи заранее провальной, сборка
 > вновь может занять очень много времени, так как, как это можно предположить,
 > каждый раз создаётся разная последовательность собираемых модулей
 
-> Очень важно! Что то вроде `$QT_HOME` в данном случае будет папка
-> `/opt/qt5/qtbase`
-
 В успешно собранном варианте размер папок и количество файлов будут примерно
 следующее:
 
 ```sh
 sized
-6.8G    .
+7.5G    .
 countf
-8961
+19378
+```
+
+# OpenCV
+
+Соберите `OpenCV`:
+
+```sh
+git clone https://github.com/opencv/opencv.git
+cd opencv
+git checkout 4.6.0
+cd $BUILDS/opencv
+cv4config
+make -j$(nproc)
+sudo make install
 ```
 
 # Guitar
@@ -1378,6 +1364,34 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE:STRING=<debug|release>
 cmake --build build -j $(nproc)
 ```
 
+# Железо
+
+Вам очевидно придётся много работать с устройствами, в том числе с `usb`.
+Установите `libusb`:
+
+```sh
+zypper se --provides --match-substrings "libusb"
+zypper in libusb-1_0-0
+```
+
+Добавьте права для разработки на необходимые устройства.
+Выведите список устройств: `lsusb`.
+
+Добавьте правило для необходимых устройств. Создайте файл
+`/etc/udev/rules.d/[nn]-[project].rules`, где `nn` номер правила, а `project`
+имя вашего проекта. Вот шаблон:
+
+```
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1d6b", ATTRS{idProduct}=="0001", MODE="0666"
+SUBSYSTEM=="usb", ATTRS{idVendor}=="1d6b", ATTRS{idProduct}=="0002", MODE="0666"
+```
+
+Перезагрузите `udev`:
+
+```sh
+sudo udevadm control --reload-rules && sudo udevadm trigger
+```
+
 # Некоторые заметки
 
 Полезные команды терминала:
@@ -1407,7 +1421,6 @@ grep -ilR
 2. `/usr/lib/systemd/system`
 
 ---
-
 `Qt` `debug` и `release`:
 
 > The project can be built in release mode or debug mode, or both. If debug and
