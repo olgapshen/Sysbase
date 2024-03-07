@@ -41,11 +41,13 @@
   - [Подготовка](#подготовка)
   - [Подготовка репозитория](#подготовка-репозитория)
   - [Переход на другие ветки и теги](#переход-на-другие-ветки-и-теги)
+  - [Модули](#модули)
   - [Сборка](#сборка)
 - [OpenCV](#opencv)
 - [Guitar](#guitar)
 - [Cmake](#cmake)
 - [Железо](#железо)
+- [Матрица](#матрица)
 - [Некоторые заметки](#некоторые-заметки)
 - [Термины и сокращения](#термины-и-сокращения)
 - [Полезные ссылки](#полезные-ссылки)
@@ -363,7 +365,27 @@ alias qt5config="$QT_REPO/configure \
   -opensource \
   -no-opengl \
   -no-xkbcommon \
+  -skip qt3d \
+  -skip qtandroidextras \
+  -skip qtcanvas3d \
+  -skip qtcharts \
+  -skip qtdatavis3d \
+  -skip qtdocgallery \
+  -skip qtgamepad \
+  -skip qtlocation \
+  -skip qtlottie \
+  -skip qtmacextras \
+  -skip qtpurchasing \
+  -skip qtquick3d \
+  -skip qtspeech \
+  -skip qtsvg \
+  -skip qttranslations \
+  -skip qtwayland \
+  -skip qtwebchannel \
   -skip qtwebengine \
+  -skip qtwebglplugin \
+  -skip qtwebview \
+  -skip qtwinextras \
   -nomake examples \
   -nomake tests"
 
@@ -1167,6 +1189,72 @@ perl init-repository --module-subset=default,-qtwebengine -f
 И обязательно удалите всё содержимое папки, где непосредственно происходит
 сборка: `QT_BUILD`.
 
+## Модули
+
+`Qt` крайне большая экосистема и некоторые модули стоит обойти. Часть из них
+не пригодиться в ваших проектах, как напримет `qt3d` если вы не разрабатываете
+трёхмерную реальностью. Часть не релевантна, как например `qtwinextras` на
+`Linux`-е, часть простоне соберётся, как например `qtdocgallery`. Для того,
+чтобы исключить модуль из сборки, вам нужно добавить параметр `-skip <repo>`
+в `alias` `qt5configure`. Ниже список внутренних репозиториев, актуальных на
+тег указанный в разделе [*Версионность*](#версионность), их размер, и признак
+включения в сборку.
+
+> При каждом добавлении параметра `-skip <repo>` и переконфигурировании сборки
+> у вас будет происходит полная пересборка проекта
+
+| Размер  | Репозиторий          |      |
+| :------ | :------------------- | :--- |
+| `240M`  | `qt3d`               |      |
+| `2.2M`  | `qtactiveqt`         | +    |
+| `2.5M`  | `qtandroidextras`    |      |
+| `335M`  | `qtbase`             | +    |
+| `15M`   | `qtcanvas3d`         |      |
+| `12M`   | `qtcharts`           |      |
+| `13M`   | `qtconnectivity`     | +    |
+| `21M`   | `qtdatavis3d`        |      |
+| `243M`  | `qtdeclarative`      | +    |
+| `12M`   | `qtdoc`              | +    |
+| `1.5M`  | `qtdocgallery`       |      |
+| `1000K` | `qtfeedback`         | +    |
+| `1.3M`  | `qtgamepad`          |      |
+| `51M`   | `qtgraphicaleffects` | +    |
+| `11M`   | `qtimageformats`     | +    |
+| `73M`   | `qtlocation`         |      |
+| `1.1M`  | `qtlottie`           |      |
+| `1.6M`  | `qtmacextras`        |      |
+| `34M`   | `qtmultimedia`       | +    |
+| `700K`  | `qtnetworkauth`      | +    |
+| `12M`   | `qtpim`              | +    |
+| `2.3M`  | `qtpurchasing`       |      |
+| `103M`  | `qtqa`               | +    |
+| `159M`  | `qtquick3d`          |      |
+| `30M`   | `qtquickcontrols`    | +    |
+| `62M`   | `qtquickcontrols2`   | +    |
+| `396K`  | `qtquicktimeline`    | +    |
+| `3.7M`  | `qtremoteobjects`    | +    |
+| `648K`  | `qtrepotools`        | +    |
+| `41M`   | `qtscript`           | +    |
+| `5.2M`  | `qtscxml`            | +    |
+| `8.5M`  | `qtsensors`          | +    |
+| `3.5M`  | `qtserialbus`        | +    |
+| `3.2M`  | `qtserialport`       | +    |
+| `656K`  | `qtspeech`           |      |
+| `15M`   | `qtsvg`              |      |
+| `4.9M`  | `qtsystems`          | +    |
+| `56M`   | `qttools`            | +    |
+| `22M`   | `qttranslations`     |      |
+| `34M`   | `qtvirtualkeyboard`  | +    |
+| `6.3M`  | `qtwayland`          |      |
+| `2.9M`  | `qtwebchannel`       |      |
+| `2.0G`  | `qtwebengine`        |      |
+| `480K`  | `qtwebglplugin`      |      |
+| `3.2M`  | `qtwebsockets`       | +    |
+| `812K`  | `qtwebview`          |      |
+| `4.7M`  | `qtwinextras`        |      |
+| `3.8M`  | `qtx11extras`        | +    |
+| `292M`  | `qtxmlpatterns`      | +    |
+
 ## Сборка
 
 Выберем папку для сборки `Qt`, пусть это будет: `/opt/qt5`. Этот путь должен
@@ -1392,6 +1480,40 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="1d6b", ATTRS{idProduct}=="0002", MODE="0666"
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
 
+# Матрица
+
+И на последок. Хотите незабываемых ощущений? Почувствовать себя Нео и
+прикоснуться к вечному? У вас ни когда не было желания в живую пообщаться по
+одной из первых сетей быстрых сообщений? У меня для вас хорошие новости!
+Сумрачный немецкий гений создавший `OpenSUSE` внедрил в его экосистему сеть
+`IRC`! Более того, `IRC` каналы живы, и активно используются для поддержки
+пользователей.
+
+`IRC` была основана в 1988-ом году. И конечно она имеет ряд недостатков по
+сравнению с нынешними системами обмена сообщений. Эти недостатки во многом были
+устранены в более новом воплощении тех же идей, в протоколе `Matrix`. Но
+`Matrix` это нечто большее чем новый `IRC`, `Matrix` это воплощение `SOA`, где
+появляется возможность связать разные системы сообщений между собой. Таким
+образом пользователи `Telegramm`-а и `Skype`-а могут переписываться между
+собой.
+
+![Matrix](doc/out/matrix/matrix.svg "Архитектура Матрицы в OpenSUSE")
+
+Возвращаясь к `IRC`. [Вот][25] список живых каналов. Установите, если ещё не
+установлен клиент `IRC` - `irssi`, запустите его и подключитесь к необходимому
+каналу:
+
+```sh
+irssi
+set nick <Nickname>
+/server list
+/connect liberachat
+```
+
+Вот пример моего вопроса в поддержку:
+
+![IRC](doc/img/irssi.png "Общенеи с поддержкой")
+
 # Некоторые заметки
 
 Полезные команды терминала:
@@ -1405,13 +1527,14 @@ find /some/where -name "startsWith*"
 find . -type f -name "*.cpp" -exec wc -l {} + | sort -rn
 # Команда с помощью которой можно проверить тип системы инициализации
 ps -s1 | awk '{print $4}'| grep -Ev "CMD"
-# Поиск в `yum` по частичному имени пакета
+# Поиск в `yum` по частичному имени пакета (CentOS)
 yum search <partial-name>
 # Взять `fingerprint` с ключа:
 ssh-keygen -E md5 -lf id_rsa
 # Скопировать файл в контейнер Docker-а
 docker copy <file> <container_id>:/path
 # Поиск по содержимому файлов
+# TODO: дополнить комманду, добавить вариант Rnw
 grep -ilR
 ```
 ---
@@ -1475,3 +1598,4 @@ grep -ilR
 [22]: http://qtdocs.narod.ru/4.1.0/doc/html/index.html
 [23]: https://get.opensuse.org/tumbleweed
 [24]: https://code.qt.io/cgit/qt/qt5.git/refs/
+[25]: https://en.opensuse.org/openSUSE:IRC_list

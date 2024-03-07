@@ -1,0 +1,43 @@
+@startuml matrix
+
+title Архитектура Матрицы
+
+cloud "Экосистема быстрых сообщений OpenSUSE" {
+package  IRC {
+    [IRC сервер] - irc
+    node "Станция разработчика" as devirc {
+        [IRC клиент] as irssidev
+    }
+    node "Поддержка" as suppirc {
+        [IRC клиент] as irssisupp
+    }
+    irc - irssidev
+    irc -- irssisupp
+}
+
+package  Matrix {
+    [Matrix сервер] - matrix
+    node "Станция разработчика" as devmatrix {
+        [Matrix клиент] as matrixdev
+    }
+    matrix - matrixdev
+}
+
+package  Telegramm {
+    [Telegramm сервер] - tg
+    node "Поддержка" as supptg {
+        [Telegramm клиент] as tgsupp
+    }
+    node "Telegramm bot" as bottg {
+        [Telegramm клиент] as tgbot
+    }
+    tg - tgsupp
+    tg -up- tgbot
+}
+
+irc -up- matrix : Мост c IRC
+tg -down- matrix : Мост c Telegramm
+
+}
+
+@enduml
