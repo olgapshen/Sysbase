@@ -81,10 +81,10 @@
 
 Далее фиксации последних рабочих состояний `OpenSUSE` и `Qt`.
 
-| Среда        | `OpenSUSE`   | Версия     | Тег `Qt` |
-| :----------- | :----------- | :--------- | :------- |
-| *Разработка* | `Tumbleweed` | `20240304` |          |
-| *АПК*        | `Leap`       | `15.5`     |          |
+| Среда        | `OpenSUSE`   | Версия     | Тег `Qt`            |
+| :----------- | :----------- | :--------- | :------------------ |
+| *Разработка* | `Tumbleweed` | `20240304` | `v5.15.12-lts-lgpl` |
+| *АПК*        | `Leap`       | `15.5`     |                     |
 
 # Установка системы
 
@@ -340,9 +340,13 @@ ssh-copy-id -i ~/.ssh/id_rsa ilmarinen@host
 Установите следующий список полезных и необходимых приложений, используя
 команду `sudo zypper install ...`:
 
-* `git` - наша система контроля версий
-* `neofetch` - консолидатор информации о системе
+* `git` - система контроля версий
+* `gcc-c++` - компилятор `C++`
+* `make` - система сборки
+* `cmake` - система конфигурации сборки
+* `htop` - монитор производительности
 * `elinks` - консольный клиент интернета
+* `neofetch` - консолидатор информации о системе
 
 ## Sysscripts
 
@@ -463,18 +467,19 @@ sudo firewall-cmd --reload
 # Сконфигурировать сессию для Oracle-а
 . /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
 
-# Папки с репозиториями
-REPOS=$HOME/repos
-# Пользовательские скрипты
-PATH=$PATH:$HOME/scripts:$REPOS/sysscripts/scripts
 # Просим man не спрашивать о номере раздела
 MAN_POSIXLY_CORRECT=1
+
+# Папки с репозиториями
+export REPOS=$HOME/repos
+# Пользовательские скрипты
+export PATH=$PATH:$HOME/scripts:$REPOS/sysscripts/scripts
 # Устанавливаем путь к репозиторию Qt
-QT_REPO=$REPOS/qt5
+export QT_REPO=$REPOS/qt5
 # Папка, где непосредственно происходит сборка Qt
-QT_BUILD=/opt/qt5/
+export QT_BUILD=/opt/qt5/
 # Путь к QT_HOME
-QT_HOME=$QT_BUILD/qtbase
+export QT_HOME=$QT_BUILD/qtbase
 
 # Монтируем папку с хоста в случае виртуалки
 alias share="sudo mount -t vboxsf share /mnt/share/"
@@ -484,33 +489,12 @@ alias untracked="git ls-files --others --exclude-standard | xargs rm -rf"
 
 # Переконфигурируем Qt
 alias qt5config="$QT_REPO/configure \
-  -prefix $PWD/qtbase \
+  -prefix $QT_BUILD/qtbase \
   -confirm-license \
-  -developer-build \
   -opensource \
+  -no-opengl \
+  -no-xkbcommon \
   -skip qtwebengine \
-  -skip qt3d \
-  -skip qtandroidextras \
-  -skip qtcharts \
-  -skip qtdatavis3d \
-  -skip qtgamepad \
-  -skip qtgraphicaleffects \
-  -skip qtlocation \
-  -skip qtlottie \
-  -skip qtmacextras \
-  -skip qtmultimedia \
-  -skip qtpurchasing \
-  -skip qtquick3d \
-  -skip qtsensors \
-  -skip qtspeech \
-  -skip qtsvg \
-  -skip qttranslations \
-  -skip qtvirtualkeyboard \
-  -skip qtwayland \
-  -skip qtwebchannel \
-  -skip qtwebglplugin \
-  -skip qtwebview \
-  -skip qtwinextras \
   -nomake examples \
   -nomake tests"
 
@@ -533,6 +517,9 @@ alias runsuse="docker run -it belowess_opensuse /bin/bash"
 # Удалить файлы сгенерированные CMake
 alias cmrm="rm -rf CMakeFiles/ CMakeCache.txt cmake_install.cmake pos_autogen"
 ```
+
+> Экспорт переменных с помощью команды `export` важен, иначе данную переменную
+> не будет видно в вызывающем скрипте
 
 # Внешние папки
 
@@ -1008,12 +995,6 @@ git checkout v5.6.0
 
 Убедитесь, что установлены необходимые пакеты.
 
-`Build essentials`:
-
-```sh
-sudo zypper in git-core gcc-c++ make
-```
-
 `Libxcb`:
 
 ```sh
@@ -1106,9 +1087,9 @@ perl init-repository --module-subset=default,-qtwebengine -f
 git submodule foreach --recursive "git clean -dfx" && git clean -dfx
 ```
 
-При этом несмотря на ключи `-dfx` в репозитори `Qt` могут остаться некоторые
-удалённые модули и внутренние репозитории внутри модулей `Qt`. Всё это из за
-статуса проблемных папок - в них есть папки `.git`.
+При этом несмотря на ключи `-dfx` в репозитори `Qt` могут остаться файлы сироты
+в модулях и корне проекта `Qt`, как уже сказано, репозиторий `Qt` представляет
+из себя композитный репозиторий, где в каждом модуле так же есть папка `.git`.
 
 В этом случае мы получим вот такой вывод, обратите внимание на
 *untracked content* в выводе:
@@ -1129,8 +1110,12 @@ Untracked files:
         qtcoap/
 ```
 
-Тогда требуется поочерёдно войти в каждый модуль, найти что не удаляется
-очистить, и удалить с помощью команды `rm -rf`:
+Тогда требуется поочерёдно войти в каждый модуль из верхней части вывода -
+`Changes not staged for commit`, и удалить файлы сироты с помощью `alias`-а
+`untracked`, созданный в `~/.bashrc` ранее:
+
+> TODO: написать скрипт для рекурсивного удаления неподконтрольных `git`-у
+> файлов
 
 ```sh
 cd qt3d
@@ -1145,15 +1130,22 @@ cd ..
 cd qttools
 git status
 ...
-rm -rf src/assistant/qlitehtml/
+untracked
 # Вернёмся обратно
 cd ..
 ```
 
-Пройдёмся по всем `Changes not staged for commit` модулям.
+Файлы сироты уходящие из под котроля гита располагаются рекурсивно. Мы начали с
+модулей, теперь возвращаемся в корень, и выполняем аналогичное действие для
+файлов из нижней части вывода - `Untracked files`, если такие имеются:
 
-Так же, как уже сказано выше, при переходе на новую версию, у вас образуется:
-`Untracked files`. Удалите эти модули:
+```sh
+git status
+untracked
+```
+
+Если `alias` `untracked` по какой то причине не сработает, воспользуйтесь более
+базовой конструкцией команд:
 
 ```sh
 git status | \
@@ -1162,15 +1154,6 @@ git status | \
   head -n -2 | \
   sed 's/^[ \t]*//' | \
   xargs rm -rf
-```
-
-Вы можете автоматизировать процесс удаления *оставленных* `git`-ом папок. Как
-сказано выше в `~/.bashrc` следует создать `alias`:
-
-> TODO: перепроверить команду
-
-```sh
-git ls-files --others --exclude-standard | xargs rm -rf
 ```
 
 Далее снова выполните:
@@ -1192,27 +1175,74 @@ perl init-repository --module-subset=default,-qtwebengine -f
 `QMAKEPATH` и `QMAKEFEATURES` не установлены. При этом в `~/.bashrc`
 установленна переменная `QT_REPO` с путём к репозиторию `Qt`.
 
-Запустите сборку из созданной ранее папки с помощью `alias`-а `qt5config`:
+Запустите сборку из созданной ранее папки с помощью `alias`-а `qt5config`.
+Оченб вероятно, что вам потребуется модифицировать `alias` `qt5config`. Вашему
+вниманию предлагаются следующие информативные выводы команды `configure`. Все
+распечатки взяты с тега `v5.15.12-lts-lgpl`:
+
+* [Вывод](configure.help) `configure -h`
+* [Вывод](configure.features) `configure -list-features`
+* [Вывод](configure.libraries) `configure -list-libraries`
+
+Любой запуск `configure` выполняйте толлько в папке `$QT_BUILD`. Стоит до
+запуска `qt5config` запустить любой информативный вывод, дабы система выполнила
+начальную фазу сборки (инициализацию) в папке `qtbase`.
 
 ```sh
+# Создаём папку и настраиваем права
 sudo mkdir /opt/qt5
 sudo chgrp ... && sudo chmod g+w qt5
 cd /opt/qt5
+# Выполняем инициализацию
+$QT_REPO/configure -h
+# Запускаем сборку
 qt5config
 ```
 
-В случае, если нужно собрать под иную архитектуру, то необходимо добавить
+Для отладки процесса настройки сборки и перенаправления вывода в удобный
+текстовый редактор воспользуйтесь следующими конструкциями. Так же добавьте
+опцию `-v` к команде `configure`:
+
+```sh
+# Запускаем сборку, добавьте -v к команде configure в alias-е qt5config
+qt5config > log.log 2>&1
+# Пока идёт настройка вы можете в параллельном табе наблюдать за процессом
+tail -f log.log
+# Вернитесь в основной таб и убедитесь, чо нет ошибок, или решите проблемы
+less log.log
+```
+
+В случае, если нужно собрать `Qt` под иную архитектуру, то необходимо добавить
 параметр `-platform` с требуемой архитектурой в вызове скрипта `configure`.
-Список поддерживаемых архитектур, можно узнать следующим листингом:
+Список поддерживаемых архитектур, можно узнать в следующей распечатке:
 
 ```sh
 ls /opt/qtsrc/qt-everywhere-opensource-src-4.7.4/mkspecs
 ```
 
-Примите условия лицензии. Начнётся конфигурация для последующей сборки.
+Если вы не использовали опцию `-confirm-license` в `configure`, примите условия
+лицензии. Далее начнётся конфигурация для последующей сборки. По завершении
+внимательно прочитайте конец вывода. Он должен быть чем то вроде:
 
-Начните сборку с максимальным количеством ядер процессоров, для ускорения
-процесса:
+```
+Qt is now configured for building. Just run 'gmake'.
+Once everything is built, Qt is installed.
+You should NOT run 'gmake install'.
+Note that this build cannot be deployed to other machines or devices.
+
+Prior to reconfiguration, make sure you remove any leftovers from
+the previous build.
+```
+
+Запустите `gmake` указав максимальное количеством ядер процессоров, для
+ускорения процесса:
+
+```sh
+gmake -j$(nproc)
+```
+
+Для ранних версий `Qt`, выпоолните сборку с помощью `make` с той же опцией
+распараллеливания сборки:
 
 ```sh
 make -j$(nproc)

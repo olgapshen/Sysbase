@@ -1,0 +1,184 @@
+qtbase:
+  dbus
+  libdl
+  libudev
+  zlib
+  zstd
+core:
+  advapi32
+  doubleconversion
+  gdi32
+  glib
+  iconv
+  icu
+  journald
+  kernel32
+  libatomic
+  librt
+  lttng_ust
+  netapi32
+  ole32
+  pcre2
+  pps
+  shell32
+  user32
+  uuid
+  winmm
+  ws2_32
+network:
+  gssapi
+  libproxy
+  network
+  openssl
+gui:
+  atspi
+  d2d1
+  d2d1_1
+  d3d11
+  d3d11_1
+  d3d9
+  d3dcompiler
+  directfb
+  drm
+  dwrite
+  dwrite_1
+  dwrite_2
+  dxgi
+  dxgi1_2
+  dxguid
+  egl
+  fontconfig
+  freetype
+  gbm
+  harfbuzz
+  integrityhid
+  lgmon
+  libinput
+  libjpeg
+  libmd4c
+  libpng
+  mtdev
+  opengl
+  opengl_es2
+  openvg
+  tslib
+  v4l2
+  vulkan
+  wayland_server
+  x11sm
+  xcb
+  xcb_glx
+  xcb_icccm
+  xcb_image
+  xcb_keysyms
+  xcb_randr
+  xcb_render
+  xcb_renderutil
+  xcb_shape
+  xcb_shm
+  xcb_sync
+  xcb_xfixes
+  xcb_xinerama
+  xcb_xinput
+  xcb_xkb
+  xcb_xlib
+  xkbcommon
+  xkbcommon_x11
+  xlib
+  xrender
+widgets:
+  gtk3
+printsupport:
+  cups
+sqldrivers:
+  db2
+  ibase
+  mysql
+  oci
+  odbc
+  psql
+  sqlite
+  sqlite2
+  tds
+imageformats:
+  jasper
+  mng
+  tiff
+  webp
+assetimporters:
+  quick3d_assimp
+gamepad:
+  sdl2
+3dcore:
+  assimp
+geometryloaders:
+  fbx
+waylandclient:
+  glx
+  wayland_client
+  wayland_cursor
+  wayland_egl
+  xcomposite
+waylandcompositor:
+  glx
+  wayland_egl
+  wayland_kms
+  wayland_server
+  xcomposite
+bluetooth:
+  bluez
+sensors:
+  sensorfw
+positioning:
+  gypsy
+multimedia:
+  alsa
+  avfoundation
+  directshow
+  gstreamer
+  gstreamer_app
+  gstreamer_gl
+  gstreamer_photography
+  libresourceqt5
+  mmrenderer
+  openal
+  pulseaudio
+  wmf
+texttospeech:
+  flite
+  flite_alsa
+  speechd
+buildtools:
+  webengine_dbus
+  webengine_ffmpeg
+  webengine_fontconfig
+  webengine_freetype
+  webengine_glib
+  webengine_harfbuzz
+  webengine_icu
+  webengine_jpeglib
+  webengine_jsoncpp
+  webengine_lcms2
+  webengine_libdrm
+  webengine_libevent
+  webengine_libvpx
+  webengine_libxml2
+  webengine_minizip
+  webengine_nss
+  webengine_opus
+  webengine_png
+  webengine_protobuf
+  webengine_re2
+  webengine_snappy
+  webengine_webp
+  webengine_x11
+  webengine_xcomposite
+  webengine_xcursor
+  webengine_xi
+  webengine_xtst
+  webengine_zlib
+webenginecore:
+  webengine_alsa
+  webengine_gio
+  webengine_poppler_cpp
+  webengine_pulseaudio
