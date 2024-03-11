@@ -9,18 +9,19 @@
 - [Оглавление](#оглавление)
 - [Вступление](#вступление)
 - [Версионность](#версионность)
+  - [Операционная система](#операционная-система)
+  - [Версии ПО](#версии-по)
 - [Установка системы](#установка-системы)
   - [Разблокировка firewall-а](#разблокировка-firewall-а)
   - [Первый логин](#первый-логин)
 - [Статическая настройка сети](#статическая-настройка-сети)
-- [Virtual Box](#virtual-box)
+- [Переменные среды](#переменные-среды)
 - [Настройки](#настройки)
   - [Суперпользователь](#суперпользователь)
   - [Имя хоста](#имя-хоста)
   - [Удалённый терминал](#удалённый-терминал)
   - [Приложения](#приложения)
   - [Sysscripts](#sysscripts)
-  - [Оболочка терминала](#оболочка-терминала)
   - [Папки сборок](#папки-сборок)
 - [Расскладка клавиатуры](#расскладка-клавиатуры)
 - [Отключение автообновления](#отключение-автообновления)
@@ -38,15 +39,18 @@
   - [Openssl](#openssl)
   - [Репозиторий и готовые сборки](#репозиторий-и-готовые-сборки)
   - [Небольшое исследование](#небольшое-исследование)
-  - [Подготовка](#подготовка)
-  - [Подготовка репозитория](#подготовка-репозитория)
+  - [Зависимости Qt](#зависимости-qt)
+  - [Подготовка Qt](#подготовка-qt)
   - [Переход на другие ветки и теги](#переход-на-другие-ветки-и-теги)
-  - [Модули](#модули)
-  - [Сборка](#сборка)
+  - [Модули Qt](#модули-qt)
+  - [Сборка Qt](#сборка-qt)
 - [OpenCV](#opencv)
+  - [Подготовка OpenCV](#подготовка-opencv)
+  - [Сборка OpenCV](#сборка-opencv)
 - [Guitar](#guitar)
 - [Cmake](#cmake)
 - [Железо](#железо)
+- [Virtual Box](#virtual-box)
 - [Матрица](#матрица)
 - [Некоторые заметки](#некоторые-заметки)
 - [Термины и сокращения](#термины-и-сокращения)
@@ -81,14 +85,33 @@
 неполадками. Часто обновление системы командой `sudo zypper update` решает
 эти проблемы. Обновляйте систему каждый день.
 
+В данном документе переменные среды приводятся без знака `$`, к примеру:
+`CV_REF`.
+
 # Версионность
 
-Далее фиксации последних рабочих состояний `OpenSUSE` и `Qt`.
+Далее фиксации последних рабочих состояний операционной системы и ПО:
 
-| Среда        | `OpenSUSE`   | Версия     | Тег `Qt`            |
-| :----------- | :----------- | :--------- | :------------------ |
-| *Разработка* | `Tumbleweed` | `20240304` | `v5.15.12-lts-lgpl` |
-| *АПК*        | `Leap`       | `15.5`     |                     |
+## Операционная система
+
+| Среда        | `OpenSUSE`   | Версия     |
+| :----------- | :----------- | :--------- |
+| *Разработка* | `Tumbleweed` | `20240304` |
+| *АПК*        | `Leap`       | `15.5`     |
+
+## Версии ПО
+
+Далее фиксация версий ПО для обеих сред. В таблице так же приведены переменные
+среды хранящие версию:
+
+> При изменении версии в данной таблице, не забывайте пожалуйста так же
+> актуализировать значения переменных в разделе
+> [переменные среды](#переменные-среды)
+
+| ПО       | `Git ref`           | Переменная |
+| :------- | :------------------ | :--------- |
+| `Qt`     | `v5.15.12-lts-lgpl` | `QT_REF`   |
+| `OpenCV` | `4.6.0`             | `CV_REF`   |
 
 # Установка системы
 
@@ -187,75 +210,99 @@ defualt 13.14.11.1 0.0.0.0 eth0
 если такой имеется в вашей сети. На самом деле `elinks` достаточно полезная
 утилита, и её в общем стоит установить.
 
-# Virtual Box
+# Переменные среды
 
-Если вы запускаетет `SLES` на виртуальной машине `Oracle Virtual Box`
-то при переходе на версию `Virtual Box 7.0` вы можете столкнуться с
-трудностями при налаживании связи между гостевой ОС и виртуальной
-машиной. Что произошло в моём случае.
-
-Было:
-
-* `Virtual Box 5.2.30 r130521 (Qt5.6.2)`
-* `openSUSE Leap 15.3` состояние начала 2022 года
-
-Я обновила `Virtual Box` на `7.0.2 r154219 (Qt5.15.2)`, в результате
-слетела `VBox GuestAdditions`, симптомы проявлялись в разном порядке
-по нарастающей:
-
-* Зкран стал маленьким
-* Сеть пропала
-* Виртуальный оптический привод не работет
-* При перегрузке система зависала
-
-Для установки *Гостевых Дополнений* необходимо примонтировать
-диск через меню "Устройства" в панели `VM`. Честно, до сих пор
-монтирование не очень стабильно работает, но на тот момент
-при ручном монтирвоании выходила ошибка:
-
-> unknown filesystem type 'iso9660'
-
-[Решение][10]:
+Создайте полезные для работы переменные и `alias`-ы в `$HOME/.bashrc`. Выберите
+лишь необходимые команды для вашей среды, которые вас стоит внести в `.bashrc`:
 
 ```sh
-sudo depmod -a
-sudo mount /dev/sr0 /mnt
-ls -l /mnt
+# $HOME/.bashrc
+
+# Сконфигурировать сессию для Oracle-а
+. /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
+
+# Просим man не спрашивать о номере раздела
+MAN_POSIXLY_CORRECT=1
+
+# Папки с репозиториями
+export REPOS=$HOME/repos
+# Папка со сборками
+export BUILDS=$HOME/builds
+# Пользовательские скрипты
+export PATH=$PATH:$REPOS/sysscripts/scripts
+# Путь к репозиторию Qt
+export QT_REPO=$REPOS/qt5
+# Путь к репозиторию OpenCV
+export CV_REPO=$REPOS/opencv
+# Путь к QT_HOME
+export QT_HOME=/opt/qt
+# Путь к OpenCV
+export CV_HOME=/opt/opencv
+
+export QT_REF=v5.15.12-lts-lgpl
+export CV_REF=4.6.0
+
+# Переконфигурируем Qt
+alias qt5config="$QT_REPO/configure \
+  -prefix $QT_HOME \
+  -confirm-license \
+  -opensource \
+  -no-opengl \
+  -no-xkbcommon \
+  -skip qt3d \
+  -skip qtandroidextras \
+  -skip qtcanvas3d \
+  -skip qtcharts \
+  -skip qtdatavis3d \
+  -skip qtdocgallery \
+  -skip qtgamepad \
+  -skip qtlocation \
+  -skip qtlottie \
+  -skip qtmacextras \
+  -skip qtpurchasing \
+  -skip qtquick3d \
+  -skip qtspeech \
+  -skip qtsvg \
+  -skip qttranslations \
+  -skip qtwayland \
+  -skip qtwebchannel \
+  -skip qtwebengine \
+  -skip qtwebglplugin \
+  -skip qtwebview \
+  -skip qtwinextras \
+  -nomake examples \
+  -nomake tests"
+
+alias cv4config="cmake \
+  -DCMAKE_BUILD_TYPE=DEBUG \
+  -DCMAKE_INSTALL_PREFIX=$CV_HOME $CV_REPO"
+
+# Удаляем внутренние репозитории не под контролем корневого репозитория
+alias untracked="git ls-files --others --exclude-standard | xargs rm -rf"
+# полностью очищаем папку
+alias fullclean="rm -rf ..?* .[!.]* *"
+# Просмотр дерева файловой системы
+alias countf="find . -type f | wc -l"
+# Объём папки
+alias sized="du -sh ."
+# Подсчёт количества файлов в папке
+alias treeless="tree -L 3 | less"
+# Удалить файлы сгенерированные CMake
+alias cmrm="rm -rf CMakeFiles/ CMakeCache.txt cmake_install.cmake pos_autogen"
+# Монтируем папку с хоста в случае виртуалки
+alias share="sudo mount -t vboxsf share /mnt/share/"
+# Сборка образа CentOS
+alias buildcent="docker build -f DockerfileCentOS -t belowess_centos ."
+# Сборка образа OpenSuse
+alias buildsuse="docker build -f DockerfileOpenSuse -t belowess_suse ."
+# Запустить контейнер centos в интерактивном режиме - удалить в будущем
+alias runcent="docker run -it belowess_centos /bin/bash"
+# Запустить контейнер opensuse в интерактивном режиме - удалить в будущем
+alias runsuse="docker run -it belowess_opensuse /bin/bash"
 ```
 
-Далее оказалось, что гостевые дополнения нужно **собрать**, делается
-это коммандой:
-
-```sh
-sudo /run/media/olga/VBox_GAs_7.0.2/VBoxLinuxAdditions.run
-```
-
-При сборке система ищет заголовки ядра, для этого нам необходим
-пакет `kernel-source`. После его установки, мы можем увидеть его
-содержание: `rpm -ql kernel-source | head`. На момент обновления,
-последняя версия ядра для `openSUSE Leap 15.3` была:
-`5.3.18-150300.59.98`, следовательно, исходники хранятся в папке:
-`/usr/src/linux-5.3.18-150300.59.98`.
-
-Команда `uname -r` давала нам знать, что версия сейчас ниже, а
-соответсвенно и `VBoxLinuxAdditions.run` гласил о том, что не может
-найти заголовки, несмотря на установленный пакет. Решение: обновить
-ядро. При этом решено было обновить не только ядро, а всю ОС на
-состояние конца 2022 года коммандой `zypper update`. Обновление было
-громоздким, и ком вышеприведённых проблем продолжил нарастать, пока всё
-же не удалось собрать *гостевые дополнения*.
-
-После сборки всегда нужно перегружать компьютер. Так же пришлось
-несколько раз повторить итерацию:
-
-```sh
-sudo zypper update
-sudo reboot
-sudo ./VBoxLinuxAdditions.run
-sudo reboot
-```
-
-Пока система более менее не пришла к стабильному состоянию.
+> Экспорт переменных с помощью команды `export` важен, иначе данную переменную
+> не будет видно в вызывающем скрипте
 
 # Настройки
 
@@ -328,97 +375,6 @@ ssh-copy-id -i ~/.ssh/id_rsa ilmarinen@host
 
 Скачайте данный репозиторий по пути `$HOME/repos/sysscripts`, далее мы пропишем
 папку `scripts` по пути `$PATH`.
-
-## Оболочка терминала
-
-Создайте полезные для работы переменные и `alias`-ы в `$HOME/.bashrc`. Выберите
-лишь необходимые команды для вашей среды, которые вас стоит внести в `.bashrc`:
-
-```sh
-# $HOME/.bashrc
-
-# Сконфигурировать сессию для Oracle-а
-. /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
-
-# Просим man не спрашивать о номере раздела
-MAN_POSIXLY_CORRECT=1
-
-# Папки с репозиториями
-export REPOS=$HOME/repos
-# папка со сборками
-export BUILDS=$HOME/builds
-# Пользовательские скрипты
-export PATH=$PATH:$REPOS/sysscripts/scripts
-# Путь к репозиторию Qt
-export QT_REPO=$REPOS/qt5
-# Путь к репозиторию OpenCV
-export CV_REPO=$REPOS/opencv
-# Путь к QT_HOME
-export QT_HOME=/opt/qt
-# Путь к OpenCV
-export CV_HOME=/opt/opencv
-
-# Переконфигурируем Qt
-alias qt5config="$QT_REPO/configure \
-  -prefix $QT_HOME \
-  -confirm-license \
-  -opensource \
-  -no-opengl \
-  -no-xkbcommon \
-  -skip qt3d \
-  -skip qtandroidextras \
-  -skip qtcanvas3d \
-  -skip qtcharts \
-  -skip qtdatavis3d \
-  -skip qtdocgallery \
-  -skip qtgamepad \
-  -skip qtlocation \
-  -skip qtlottie \
-  -skip qtmacextras \
-  -skip qtpurchasing \
-  -skip qtquick3d \
-  -skip qtspeech \
-  -skip qtsvg \
-  -skip qttranslations \
-  -skip qtwayland \
-  -skip qtwebchannel \
-  -skip qtwebengine \
-  -skip qtwebglplugin \
-  -skip qtwebview \
-  -skip qtwinextras \
-  -nomake examples \
-  -nomake tests"
-
-alias cv4config="cmake \
-  -DCMAKE_BUILD_TYPE=DEBUG \
-  -DCMAKE_INSTALL_PREFIX=$CV_HOME $CV_REPO"
-
-# Удаляем внутренние репозитории не под контролем корневого репозитория
-alias untracked="git ls-files --others --exclude-standard | xargs rm -rf"
-# полностью очищаем папку
-alias fullclean="rm -rf ..?* .[!.]* *"
-# Просмотр дерева файловой системы
-alias countf="find . -type f | wc -l"
-# Объём папки
-alias sized="du -sh ."
-# Подсчёт количества файлов в папке
-alias treeless="tree -L 3 | less"
-# Монтируем папку с хоста в случае виртуалки
-alias share="sudo mount -t vboxsf share /mnt/share/"
-# Сборка образа CentOS
-alias buildcent="docker build -f DockerfileCentOS -t belowess_centos ."
-# Сборка образа OpenSuse
-alias buildsuse="docker build -f DockerfileOpenSuse -t belowess_suse ."
-# Запустить контейнер centos в интерактивном режиме - удалить в будущем
-alias runcent="docker run -it belowess_centos /bin/bash"
-# Запустить контейнер opensuse в интерактивном режиме - удалить в будущем
-alias runsuse="docker run -it belowess_opensuse /bin/bash"
-# Удалить файлы сгенерированные CMake
-alias cmrm="rm -rf CMakeFiles/ CMakeCache.txt cmake_install.cmake pos_autogen"
-```
-
-> Экспорт переменных с помощью команды `export` важен, иначе данную переменную
-> не будет видно в вызывающем скрипте
 
 ## Папки сборок
 
@@ -970,7 +926,8 @@ chmod u+x diff.sh
 *Подробнее обо всех коммандах работы с репозиторием `Qt` смотрите ниже*.
 
 ```sh
-cd $QT_REPO
+cd $REPOS
+git clone git://code.qt.io/qt/qt5.git
 git checkout v5.15.2
 git submodule update --init --recursive --force
 git submodule foreach --recursive "git clean -dfx" && git clean -dfx
@@ -981,7 +938,7 @@ git status
 
 Создаём файл сравнения:
 
-```
+```sh
 ./diff.sh /opt/qtsrc/qt-everywhere-src-5.15.2 > diff_5.12.2.log
 ```
 
@@ -1006,7 +963,7 @@ git checkout v5.6.0
 > `teg`-и только в соответствии с версиями архивов с файлового хранилища
 > `release`-ов `Qt`
 
-## Подготовка
+## Зависимости Qt
 
 > `Qt` можно установить с помощью отдельного файла установщика, но при этом
 > потребуется нерационально большое дисковое пространоство, что идёт в разрез
@@ -1050,13 +1007,14 @@ pip install nss
 sudo zypper in libnss_nis2
 ```
 
-## Подготовка репозитория
+## Подготовка Qt
 
-Склонируйте репозиторий:
+Склонируйте репозиторий и выберите нужный тег:
 
 ```sh
-cd $QT_REPO
-git clone git://code.qt.io/qt/qt5.git
+cd $REPOS
+git clone git://code.qt.io/qt/qt5.git && cd qt5
+git checkout $QT_REF
 ```
 
 Проект имеет большое количество веток и тегов. Не всё `ref`-ы консистенты,
@@ -1067,10 +1025,10 @@ git clone git://code.qt.io/qt/qt5.git
 дистрибутива. Вам поможет [список версий][24] проекта исходников `Qt`. Сразу
 переходите к части `Tag`.
 
-Выберите нужную ветку-версию, или тег и переключитесь на неё (к примеру `5.6`):
+Вы можете пролистать и выбрать иные ветку или тег, затем переключится на неё,
+например `v5.15.2`:
 
 ```sh
-cd qt5
 # Выберите ветку
 git branch -r
 # Или тег
@@ -1189,7 +1147,7 @@ perl init-repository --module-subset=default,-qtwebengine -f
 И обязательно удалите всё содержимое папки, где непосредственно происходит
 сборка: `QT_BUILD`.
 
-## Модули
+## Модули Qt
 
 `Qt` крайне большая экосистема и некоторые модули стоит обойти. Часть из них
 не пригодиться в ваших проектах, как напримет `qt3d` если вы не разрабатываете
@@ -1255,32 +1213,38 @@ perl init-repository --module-subset=default,-qtwebengine -f
 | `3.8M`  | `qtx11extras`        | +    |
 | `292M`  | `qtxmlpatterns`      | +    |
 
-## Сборка
+## Сборка Qt
 
-Выберем папку для сборки `Qt`, пусть это будет: `/opt/qt5`. Этот путь должен
-быть зафиксирован в переменной среды `QT_BUILD`. Убедитесь, что переменные
-`QMAKEPATH` и `QMAKEFEATURES` не установлены. При этом в `~/.bashrc`
-установленна переменная `QT_REPO` с путём к репозиторию `Qt`.
+Выберем папку для сборки `Qt`, пусть это будет значение переменной `QT_HOME`
+Убедитесь, что переменные `QMAKEPATH` и `QMAKEFEATURES` не установлены. При
+этом в `~/.bashrc` установленна переменная `QT_REPO` с путём к репозиторию
+`Qt`.
 
-Запустите сборку из созданной ранее папки с помощью `alias`-а `qt5config`.
-Оченб вероятно, что вам потребуется модифицировать `alias` `qt5config`. Вашему
-вниманию предлагаются следующие информативные выводы команды `configure`. Все
-распечатки взяты с тега `v5.15.12-lts-lgpl`:
+Запустите настройку сборки из созданной ранее папки с помощью `alias`-а
+`qt5config`. Очень вероятно, что вам потребуется модифицировать `alias`
+`qt5config`. Вашему вниманию предлагаются следующие информативные выводы
+команды `configure`. Все распечатки взяты с тега `QT_REF`:
 
 * [Вывод](configure.help) `configure -h`
 * [Вывод](configure.features) `configure -list-features`
 * [Вывод](configure.libraries) `configure -list-libraries`
 
-Любой запуск `configure` выполняйте толлько в папке `$QT_BUILD`. Стоит до
-запуска `qt5config` запустить любой информативный вывод, дабы система выполнила
-начальную фазу сборки (инициализацию) в папке `qtbase`.
+Любой запуск `configure` выполняйте толлько в папке `QT_BUILD`. Запускаем
+подготовку к сборке:
 
 ```sh
 cd $BUILDS/qt5
-# Выполняем инициализацию
-$QT_REPO/configure -h
 # Запускаем сборку
 qt5config
+```
+
+Вы можете до запуска `qt5config` запустить любой информативный вывод, дабы
+система выполнила начальную фазу сборки (инициализацию) в папке `qtbase`,
+например:
+
+```sh
+# Выполняем инициализацию через вызов информативного вывода
+$QT_REPO/configure -h
 ```
 
 Для отладки процесса настройки сборки и перенаправления вывода в удобный
@@ -1327,6 +1291,9 @@ gmake -j$(nproc)
 gmake install
 ```
 
+> TODO: при создании папок `XX_HOME` не выдавать права на активную группу,
+> вместо этого использовать `sudo` при достижении цели `install`
+
 Для ранних версий `Qt`, выпоолните сборку с помощью `make` с той же опцией
 распараллеливания сборки:
 
@@ -1359,16 +1326,33 @@ countf
 
 # OpenCV
 
-Соберите `OpenCV`:
+`OpenCV` собирается с [официального сайта][26].
+
+## Подготовка OpenCV
+
+Склонируйте репозиторий и выберите нужную ветку:
 
 ```sh
-git clone https://github.com/opencv/opencv.git
-cd opencv
-git checkout 4.6.0
+cd $REPOS
+git clone https://github.com/opencv/opencv.git && cd opencv
+git checkout $CV_REF
+```
+
+## Сборка OpenCV
+
+Запускаем подготовку к сборке:
+
+```sh
 cd $BUILDS/opencv
+# Запускаем сборку
 cv4config
+```
+
+Запускаем сам процесс сборки:
+
+```sh
 make -j$(nproc)
-sudo make install
+make install
 ```
 
 # Guitar
@@ -1387,11 +1371,13 @@ sudo make install
 
 Ниже общий необходимый набор команд:
 
+> TODO: унифицировать по примеру `Qt` и `OpenCV`
+
 ```sh
 # Соглашаемся на удаление
 sudo zypper in libopenssl1_0_0
 # Переходим в папку с репозиториями
-cd $HOME/repos
+cd $REPOS
 # Клонируем zlib
 git clone https://github.com/madler/zlib.git
 # Клонируем Guitar
@@ -1482,6 +1468,76 @@ SUBSYSTEM=="usb", ATTRS{idVendor}=="1d6b", ATTRS{idProduct}=="0002", MODE="0666"
 ```sh
 sudo udevadm control --reload-rules && sudo udevadm trigger
 ```
+
+# Virtual Box
+
+Если вы запускаетет `SLES` на виртуальной машине `Oracle Virtual Box`
+то при переходе на версию `Virtual Box 7.0` вы можете столкнуться с
+трудностями при налаживании связи между гостевой ОС и виртуальной
+машиной. Что произошло в моём случае.
+
+Было:
+
+* `Virtual Box 5.2.30 r130521 (Qt5.6.2)`
+* `openSUSE Leap 15.3` состояние начала 2022 года
+
+Я обновила `Virtual Box` на `7.0.2 r154219 (Qt5.15.2)`, в результате
+слетела `VBox GuestAdditions`, симптомы проявлялись в разном порядке
+по нарастающей:
+
+* Зкран стал маленьким
+* Сеть пропала
+* Виртуальный оптический привод не работет
+* При перегрузке система зависала
+
+Для установки *Гостевых Дополнений* необходимо примонтировать
+диск через меню "Устройства" в панели `VM`. Честно, до сих пор
+монтирование не очень стабильно работает, но на тот момент
+при ручном монтирвоании выходила ошибка:
+
+> unknown filesystem type 'iso9660'
+
+[Решение][10]:
+
+```sh
+sudo depmod -a
+sudo mount /dev/sr0 /mnt
+ls -l /mnt
+```
+
+Далее оказалось, что гостевые дополнения нужно **собрать**, делается
+это коммандой:
+
+```sh
+sudo /run/media/olga/VBox_GAs_7.0.2/VBoxLinuxAdditions.run
+```
+
+При сборке система ищет заголовки ядра, для этого нам необходим
+пакет `kernel-source`. После его установки, мы можем увидеть его
+содержание: `rpm -ql kernel-source | head`. На момент обновления,
+последняя версия ядра для `openSUSE Leap 15.3` была:
+`5.3.18-150300.59.98`, следовательно, исходники хранятся в папке:
+`/usr/src/linux-5.3.18-150300.59.98`.
+
+Команда `uname -r` давала нам знать, что версия сейчас ниже, а
+соответсвенно и `VBoxLinuxAdditions.run` гласил о том, что не может
+найти заголовки, несмотря на установленный пакет. Решение: обновить
+ядро. При этом решено было обновить не только ядро, а всю ОС на
+состояние конца 2022 года коммандой `zypper update`. Обновление было
+громоздким, и ком вышеприведённых проблем продолжил нарастать, пока всё
+же не удалось собрать *гостевые дополнения*.
+
+После сборки всегда нужно перегружать компьютер. Так же пришлось
+несколько раз повторить итерацию:
+
+```sh
+sudo zypper update
+sudo reboot
+sudo ./VBoxLinuxAdditions.run
+sudo reboot
+```
+
+Пока система более менее не пришла к стабильному состоянию.
 
 # Матрица
 
@@ -1602,3 +1658,4 @@ grep -ilR
 [23]: https://get.opensuse.org/tumbleweed
 [24]: https://code.qt.io/cgit/qt/qt5.git/refs/
 [25]: https://en.opensuse.org/openSUSE:IRC_list
+[26]: https://opencv.org/
