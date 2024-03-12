@@ -19,6 +19,7 @@
 - [Настройки](#настройки)
   - [Суперпользователь](#суперпользователь)
   - [Имя хоста](#имя-хоста)
+  - [Настройка vim](#настройка-vim)
   - [Удалённый терминал](#удалённый-терминал)
   - [Приложения](#приложения)
   - [Sysscripts](#sysscripts)
@@ -42,12 +43,17 @@
   - [Зависимости Qt](#зависимости-qt)
   - [Подготовка Qt](#подготовка-qt)
   - [Переход на другие ветки и теги](#переход-на-другие-ветки-и-теги)
+  - [Заплатка Qt](#заплатка-qt)
   - [Модули Qt](#модули-qt)
   - [Сборка Qt](#сборка-qt)
+  - [Замечания Qt](#замечания-qt)
 - [OpenCV](#opencv)
   - [Подготовка OpenCV](#подготовка-opencv)
   - [Сборка OpenCV](#сборка-opencv)
-- [Guitar](#guitar)
+- [OpenSSL](#openssl-1)
+  - [Подготовка OpenSSL](#подготовка-openssl)
+  - [Сборка OpenSSL](#сборка-openssl)
+- [GitQlient](#gitqlient)
 - [Cmake](#cmake)
 - [Железо](#железо)
 - [Virtual Box](#virtual-box)
@@ -108,10 +114,11 @@
 > актуализировать значения переменных в разделе
 > [переменные среды](#переменные-среды)
 
-| ПО       | `Git ref`           | Переменная |
-| :------- | :------------------ | :--------- |
-| `Qt`     | `v5.15.12-lts-lgpl` | `QT_REF`   |
-| `OpenCV` | `4.6.0`             | `CV_REF`   |
+| ПО        | `Git ref`           | Переменная |
+| :-------- | :------------------ | :--------- |
+| `Qt`      | `v5.15.12-lts-lgpl` | `QT_REF`   |
+| `OpenCV`  | `4.6.0`             | `CV_REF`   |
+| `OpenSSL` | `openssl-3.2.1`     | `SL_REF`   |
 
 # Установка системы
 
@@ -156,6 +163,9 @@ curl --max-time 1 -k -i -s -u <USER>:<PASSWORD> \
     awk '{print $2}' | \
     tr -d '[:space:]')
 ```
+
+Вашему вниманию представлен [скрипт](../scripts/cisco.sh) разблокировки,
+который вы можете установить по пути `PATH`.
 
 ## Первый логин
 
@@ -212,93 +222,12 @@ defualt 13.14.11.1 0.0.0.0 eth0
 
 # Переменные среды
 
-Создайте полезные для работы переменные и `alias`-ы в `$HOME/.bashrc`. Выберите
-лишь необходимые команды для вашей среды, которые вас стоит внести в `.bashrc`:
+Определите полезные для работы переменные и `alias`-ы в среде терминала. Для
+этого *примените* (`source`) скрипт [`env.sh`](env.sh) через `$HOME/.bashrc`:
 
 ```sh
-# $HOME/.bashrc
-
-# Сконфигурировать сессию для Oracle-а
-. /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
-
-# Просим man не спрашивать о номере раздела
-MAN_POSIXLY_CORRECT=1
-
-# Папки с репозиториями
-export REPOS=$HOME/repos
-# Папка со сборками
-export BUILDS=$HOME/builds
-# Пользовательские скрипты
-export PATH=$PATH:$REPOS/sysscripts/scripts
-# Путь к репозиторию Qt
-export QT_REPO=$REPOS/qt5
-# Путь к репозиторию OpenCV
-export CV_REPO=$REPOS/opencv
-# Путь к QT_HOME
-export QT_HOME=/opt/qt
-# Путь к OpenCV
-export CV_HOME=/opt/opencv
-
-export QT_REF=v5.15.12-lts-lgpl
-export CV_REF=4.6.0
-
-# Переконфигурируем Qt
-alias qt5config="$QT_REPO/configure \
-  -prefix $QT_HOME \
-  -confirm-license \
-  -opensource \
-  -no-opengl \
-  -no-xkbcommon \
-  -skip qt3d \
-  -skip qtandroidextras \
-  -skip qtcanvas3d \
-  -skip qtcharts \
-  -skip qtdatavis3d \
-  -skip qtdocgallery \
-  -skip qtgamepad \
-  -skip qtlocation \
-  -skip qtlottie \
-  -skip qtmacextras \
-  -skip qtpurchasing \
-  -skip qtquick3d \
-  -skip qtspeech \
-  -skip qtsvg \
-  -skip qttranslations \
-  -skip qtwayland \
-  -skip qtwebchannel \
-  -skip qtwebengine \
-  -skip qtwebglplugin \
-  -skip qtwebview \
-  -skip qtwinextras \
-  -nomake examples \
-  -nomake tests"
-
-alias cv4config="cmake \
-  -DCMAKE_BUILD_TYPE=DEBUG \
-  -DCMAKE_INSTALL_PREFIX=$CV_HOME $CV_REPO"
-
-# Удаляем внутренние репозитории не под контролем корневого репозитория
-alias untracked="git ls-files --others --exclude-standard | xargs rm -rf"
-# полностью очищаем папку
-alias fullclean="rm -rf ..?* .[!.]* *"
-# Просмотр дерева файловой системы
-alias countf="find . -type f | wc -l"
-# Объём папки
-alias sized="du -sh ."
-# Подсчёт количества файлов в папке
-alias treeless="tree -L 3 | less"
-# Удалить файлы сгенерированные CMake
-alias cmrm="rm -rf CMakeFiles/ CMakeCache.txt cmake_install.cmake pos_autogen"
-# Монтируем папку с хоста в случае виртуалки
-alias share="sudo mount -t vboxsf share /mnt/share/"
-# Сборка образа CentOS
-alias buildcent="docker build -f DockerfileCentOS -t belowess_centos ."
-# Сборка образа OpenSuse
-alias buildsuse="docker build -f DockerfileOpenSuse -t belowess_suse ."
-# Запустить контейнер centos в интерактивном режиме - удалить в будущем
-alias runcent="docker run -it belowess_centos /bin/bash"
-# Запустить контейнер opensuse в интерактивном режиме - удалить в будущем
-alias runsuse="docker run -it belowess_opensuse /bin/bash"
+# Добавьте строку в $HOME/.bashrc
+. $HOME/repos/sysscripts/opensuse/env.sh
 ```
 
 > Экспорт переменных с помощью команды `export` важен, иначе данную переменную
@@ -343,6 +272,11 @@ sudo hostnamectl set-hostname <HOSTNAME>
 192.168.1.30     northwind northwind.ru
 ```
 
+## Настройка vim
+
+Создайте файл `$HOME/.vimrc` с содержанием из [главы](../vimide/README.md#vim)
+в мануале `vimide`.
+
 ## Удалённый терминал
 
 Убедитесь что вы располагаете публичным ключём вашего приватного, и если нет,
@@ -378,21 +312,19 @@ ssh-copy-id -i ~/.ssh/id_rsa ilmarinen@host
 
 ## Папки сборок
 
-Для сборки `Qt` и `OpenCV` нам стоит подготовить специальные папки. Можно было
-бы штатно установить их в обшую файловую систему, но они на столько уникальны
-что было решено установить их отдельно. В папках `QT_HOME` и `CV_HOME` будут
-располагаться бинарники, но для установки нам потребуются права записи.
+Для сборки стандартных приложений нам стоит подготовить специальные папки.
+
+> TODO: Устанавливать приложения по стандартным путям типа `/usr/local/bin`
 
 ```sh
-sudo mkdir -p $QT_HOME $CV_HOME
-sudo chgrp -R $(id -gn $(whoami)) $QT_HOME $CV_HOME
-sudo chmod g+w -R $(id -gn $(whoami)) $QT_HOME $CV_HOME
+sudo mkdir -p $QT_HOME $CV_HOME $SL_HOME
 ```
 
 Промежуточные - объектные файлы, будем располагать в папках `$HOME/builds`:
 
 ```sh
-mkdir -p $BUILDS/qt5 $BUILDS/opencv
+cd $BUILDS
+mkdir qt5 opencv openssl
 ```
 
 # Расскладка клавиатуры
@@ -666,7 +598,7 @@ openssl req \
   -newkey rsa:4096 -nodes -sha256 -keyout KoshDomain.key \
   -x509 -days 365 -out KoshDomain.crt \
   -addext "subjectAltName = DNS:$HOSTNAME" \
-  -subj "/C=RU/ST=Vologda/L=Vologda/O=Belowess/OU=NIT/CN=$HOSTNAME"
+  -subj "/C=RU/ST=Vologda/L=Vologda/O=Kalevala/OU=NIT/CN=$HOSTNAME"
 ```
 
 Проверьте, что поле `subjectAltName` проставилось:
@@ -749,8 +681,8 @@ git config --global --edit
 1 # This is Git's per-user configuration file.
 2 [user]
 3 # Please adapt and uncomment the following lines:
-4    name = <Фамилия Имя Отчество> (<git_id>)
-5    email = git_id@belowess.org
+4    name = <Фамилия Имя Отчество> (<gitId>)
+5    email = gitId@Kalevala.org
 6 [init]
 7    defaultBranch = main
 ```
@@ -805,8 +737,11 @@ git config --global --edit
 ## Openssl
 
 > В некоторых случаях вам придётся понизить версию `openssl`, так как некоторые
-> версии `qt` не собираются с установленной на `OpenSuse 15.3` версией
+> версии `Qt` не собираются с установленной на `OpenSuse 15.3` версией
 > `openssl 1.1`.
+
+> TODO: скорее всего переписать эту часть, учитывая что как минимум для
+> `Guitar` мы собираем отдельную установку `openssl`
 
 Необходимо понизить версию `OpenSSL` с `1.1` на `1.0`. Глвное сделать это не
 удалив половину операционной системы. Если вдруг в результате своих действий
@@ -984,7 +919,8 @@ sudo zypper in \
   xcb-util-renderutil-devel \
   xcb-util-wm-devel \
   libxkbcommon-x11-devel \
-  libxkbcommon-devel libXi-devel
+  libxkbcommon-devel \
+  libXi-devel
 ```
 
 `Qt WebKit`:
@@ -1147,6 +1083,24 @@ perl init-repository --module-subset=default,-qtwebengine -f
 И обязательно удалите всё содержимое папки, где непосредственно происходит
 сборка: `QT_BUILD`.
 
+## Заплатка Qt
+
+Как уже было сказано крайне тяжело найти *тег* `git`-а в котором ваша сборка
+`Qt` была бы успешной на конкретной `ОС`. Даже найдя самый оптимальный вариант,
+вам придётся поотключать большо йнабор модулей, которые не смогут собраться.
+
+Как минимум на актуальном для данного мануала *теге* `Qt` библиотека
+`xkbcomon` более новой версии чем ожидается в коде, что не позволяет собрать
+модуль `xcb` (второй раз чере `c`). Данный модуль необходим для `Guitar`.
+
+В свете этого была создана *заплатка* (`patch`) решающая данную проблему. Её
+необходимо применить:
+
+```sh
+cd $QT_REPO/qtbase
+git apply $SS_REPO/opensuse/xcb.patch
+```
+
 ## Модули Qt
 
 `Qt` крайне большая экосистема и некоторые модули стоит обойти. Часть из них
@@ -1198,7 +1152,7 @@ perl init-repository --module-subset=default,-qtwebengine -f
 | `3.5M`  | `qtserialbus`        | +    |
 | `3.2M`  | `qtserialport`       | +    |
 | `656K`  | `qtspeech`           |      |
-| `15M`   | `qtsvg`              |      |
+| `15M`   | `qtsvg`              | +    |
 | `4.9M`  | `qtsystems`          | +    |
 | `56M`   | `qttools`            | +    |
 | `22M`   | `qttranslations`     |      |
@@ -1234,7 +1188,7 @@ perl init-repository --module-subset=default,-qtwebengine -f
 
 ```sh
 cd $BUILDS/qt5
-# Запускаем сборку
+# Настраиваем сборку
 qt5config
 ```
 
@@ -1256,8 +1210,10 @@ $QT_REPO/configure -h
 qt5config > log.log 2>&1
 # Пока идёт настройка вы можете в параллельном табе наблюдать за процессом
 tail -f log.log
-# Вернитесь в основной таб и убедитесь, чо нет ошибок, или решите проблемы
+# Вернитесь в основной таб и убедитесь, что нет ошибок, или решите проблемы
 less log.log
+# Так же можно сразу вывести вывод в less
+qt5config 2>&1 | less
 ```
 
 В случае, если нужно собрать `Qt` под иную архитектуру, то необходимо добавить
@@ -1288,18 +1244,15 @@ the previous build.
 
 ```sh
 gmake -j$(nproc)
-gmake install
+sudo gmake install
 ```
-
-> TODO: при создании папок `XX_HOME` не выдавать права на активную группу,
-> вместо этого использовать `sudo` при достижении цели `install`
 
 Для ранних версий `Qt`, выпоолните сборку с помощью `make` с той же опцией
 распараллеливания сборки:
 
 ```sh
 make -j$(nproc)
-make install
+sudo make install
 ```
 
 > Если происходит сбой сборки, и вам нужна ошибка, коорая привела к сбою,
@@ -1322,6 +1275,15 @@ sized
 7.5G    .
 countf
 19378
+```
+
+## Замечания Qt
+
+Для того, чтобы передать в `qmake` дополнительную конфигурацию, выполните
+команду на подобии:
+
+```sh
+qmake CONFIG+=debug GitQlient.pro
 ```
 
 # OpenCV
@@ -1352,67 +1314,87 @@ cv4config
 
 ```sh
 make -j$(nproc)
-make install
+sudo make install
 ```
 
-# Guitar
+# OpenSSL
+
+Для сборки `Guitar` нам придётся отдельно собрать `OpenSSL`. Всвете отсутствия
+пакета `libssl` в `OpenSUSE`, нам вполне может понадобится данная сборка и в
+иных проектах. Результат сборки `OpenSSL` мы расположим отдельно от
+стандартного дерева `/usr`, дабы не нарушить консистентность всего дестрибутива
+`OpenSUSE`.
+
+> TODO: перешли на `GitQlient`, возможно уже не понадобиться отдельно собирать
+> `OpenSSL`
+
+## Подготовка OpenSSL
+
+Склонируйте репозиторий и выберите нужную ветку:
+
+```sh
+cd $REPOS
+git clone https://github.com/openssl/openssl.git && cd openssl
+git checkout $SL_REF
+```
+
+## Сборка OpenSSL
+
+Запустите подготовку к сборке:
+
+```sh
+cd $BUILDS/openssl
+# Запускаем сборку
+sl3config
+```
+
+Вы можете проверить настройку с помощью:
+
+```sh
+perl configdata.pm --dump | less
+```
+
+Запустите сам процесс сборки и установку:
+
+```sh
+make -j$(nproc)
+sudo make install
+```
+
+# GitQlient
 
 [`Git` клиент][20] идеально интегрированный в нашу экосистему.
 
-1. Клонируем `zlib`
-2. Клонируем `Guitar`
-3. Устанавливаем `libopenssl1_0_0` заместо весии `1_1`
-4. Собираем `Guitar`
+Предполагается, что будем собирать `HEAD` ветки `master`, так как проект
+достаточно стабилен, во всяком случае коммит `58b87fbd` встал на
+`Tumbleweed 20240304`.
 
-*По поводу конфликта между версиями `ssl`, смотрите*
-*[соответствующую главу](#openssl)*
+> TODO: возможно всё же зафиксировать версию
 
-> Сборка `zlib` происходит из проекта `Guitar`
-
-Ниже общий необходимый набор команд:
-
-> TODO: унифицировать по примеру `Qt` и `OpenCV`
+Подготовте сборку и соберите `GitQlient`
 
 ```sh
-# Соглашаемся на удаление
-sudo zypper in libopenssl1_0_0
 # Переходим в папку с репозиториями
 cd $REPOS
-# Клонируем zlib
-git clone https://github.com/madler/zlib.git
-# Клонируем Guitar
-git clone https://github.com/soramimi/Guitar.git
-# Переходим в проект
-cd Guitar
+# Клонируем GitQlient
+git clone https://github.com/francescmm/GitQlient.git && cd GitQlient
 # Подготавливаем проект
-ruby prepare.rb
-# Конфигурируем zlib
-qmake zlib.pro
-# Собираем zlib
-make -j$(nproc)
-# Конфигурируем Guitar
-qmake Guitar.pro
-# Собираем Guitar
-make -j$(nproc)
+qmake GitQlient.pro
 ```
 
-Для сборки приложения  с символами отладки, запустите оба `qmake`-а с опциями:
-`CONFIG+=debug CONFIG+=declarative_debug`:
+Для сборки приложения с символами отладки запустите `qmake` с дополнительной
+опцией:
 
 ```sh
-qmake CONFIG+=debug CONFIG+=declarative_debug zlib.pro
-make -j$(nproc)
-qmake CONFIG+=debug CONFIG+=declarative_debug Guitar.pro
-make -j$(nproc)
+qmake CONFIG+=debug GitQlient.pro
 ```
 
-Если вы до этого уже собирали проекты в режиме `release`, то у вас есть уже
-скомпилированные `*.o` файлы. При попытки отладки с `Termdebug` вы получите
-ошибку при попытке поставить точку останова:
+Запустите сборку и установку:
 
-> No source file named ...
-
-В это случае удалите все файлы пораждённые сборкой и пересоберите заново.
+```sh
+make
+sudo make install
+```
 
 # Cmake
 
@@ -1569,6 +1551,13 @@ set nick <Nickname>
 /connect liberachat
 ```
 
+Стоит так же установить подавление избыточных для нас системных оповещений о
+подключении и отключении пользователей:
+
+```sh
+/window hidelevel +joins +parts +quits
+```
+
 Вот пример моего вопроса в поддержку:
 
 ![IRC](doc/img/irssi.png "Общенеи с поддержкой")
@@ -1595,6 +1584,12 @@ docker copy <file> <container_id>:/path
 # Поиск по содержимому файлов
 # TODO: дополнить комманду, добавить вариант Rnw
 grep -ilR
+# Монтаж папки с хоста в случае виртуалки
+mount -t vboxsf share /mnt/share/
+# Сборка образа CentOS
+docker build -f DockerfileCentOS -t kalevala_centos .
+# Сборка образа OpenSuse
+docker build -f DockerfileOpenSuse -t kalevala_suse .
 ```
 ---
 Папки с `unit`-ами `systemd` в `OpenSuse`:
@@ -1653,7 +1648,7 @@ grep -ilR
 [15]: https://www.baeldung.com/gradle
 [18]: https://lynx.invisible-island.net/lynx_help/Lynx_users_guide.html
 [19]: https://mcs.mail.ru/blog/sposoby-keshirovaniya-v-gitlab-ci-rukovodstvo-v-kartinkah
-[20]: https://github.com/soramimi/Guitar
+[20]: https://github.com/francescmm/GitQlient
 [22]: http://qtdocs.narod.ru/4.1.0/doc/html/index.html
 [23]: https://get.opensuse.org/tumbleweed
 [24]: https://code.qt.io/cgit/qt/qt5.git/refs/
