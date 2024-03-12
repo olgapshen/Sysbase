@@ -644,16 +644,19 @@ done | sort -u
 
 Требуемые плагины для работы в `Visual Studio Code`:
 
-* `Better C++ Syntax` (*Jeff Hykin*)
-* `C/C++` (*Microsoft*)
-* `C/C++ Extension Pack` (*Microsoft*)
-* `C/C++ Themes` (*Microsoft*)
-* `CMake` (*twxs*)
-* `CMake Tools` (*Microsoft*)
-* `Markdown All in One` (*Yu Zhang*)
-* `PlantUML` (*jebbs*)
-* `Qt tools` (*tonka3000*)
-* `Trailing Spaces` (*Shardul Mahadik*)
+| Плагин                 | Автор                 | Идентификатор           |
+| :--------------------- | :-------------------- | :---------------------- |
+| `Better C++ Syntax`    | *Jeff Hykin*          |                         |
+| `C/C++`                | *Microsoft*           |                         |
+| `C/C++ Extension Pack` | *Microsoft*           |                         |
+| `C/C++ Themes`         | *Microsoft*           |                         |
+| `CMake`                | *twxs*                |                         |
+| `CMake Tools`          | *Microsoft*           |                         |
+| `Markdown All in One`  | *Yu Zhang*            |                         |
+| `PlantUML`             | *jebbs*               |                         |
+| `Qt tools`             | *tonka3000*           |                         |
+| `Trailing Spaces`      | *Shardul Mahadik*     |                         |
+| `Bookmarks`            | *Alessandro Fragnani* | `alefragnani.bookmarks` |
 
 Навигация по посещённым участкам:
 
