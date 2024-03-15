@@ -2,3 +2,4 @@
 * tar -czvf certs.tar.gz certs/
 * set -o errexit -o nounset
 * make .PHONY
+* Найти способ проверять ссылки в README с CI/CD

@@ -13,6 +13,9 @@
 - [PLSQL](plsql/README.md) - полезные блоки кода для работы с `Oracle`-ом
 - [Clonezilla](clonezilla/README.md) - клонирование систем
 
+> В данном документе переменные среды приводятся без знака `$`, к примеру:
+> `CV_REF`
+
 # Оглавление
 
 - [SysScripts](#sysscripts)
@@ -386,7 +389,7 @@ $ ls belowess.ru.crt
 Для того, чтобы посмотреть информацию по скаченному сертификату:
 
 ```sh
-$ openssl x509 -in belowess.ru.crt -text | less
+$ openssl x509 -in belowess.ru.crt -noout -text | less
 ```
 
 > В случае, если мы просматриваем сертификат в двичном формате `DER`,
@@ -394,7 +397,7 @@ $ openssl x509 -in belowess.ru.crt -text | less
 > программы `openssl`
 
 ```sh
-$ openssl x509 -inform der -in belowess.ru.cer -text
+$ openssl x509 -inform der -in belowess.ru.cer -noout -text
 ```
 
 Если в одном `pem` файле у нас много сертификатов, то мы можем просмотреть
@@ -644,19 +647,18 @@ done | sort -u
 
 Требуемые плагины для работы в `Visual Studio Code`:
 
-| Плагин                 | Автор                 | Идентификатор           |
-| :--------------------- | :-------------------- | :---------------------- |
-| `Better C++ Syntax`    | *Jeff Hykin*          |                         |
-| `C/C++`                | *Microsoft*           |                         |
-| `C/C++ Extension Pack` | *Microsoft*           |                         |
-| `C/C++ Themes`         | *Microsoft*           |                         |
-| `CMake`                | *twxs*                |                         |
-| `CMake Tools`          | *Microsoft*           |                         |
-| `Markdown All in One`  | *Yu Zhang*            |                         |
-| `PlantUML`             | *jebbs*               |                         |
-| `Qt tools`             | *tonka3000*           |                         |
-| `Trailing Spaces`      | *Shardul Mahadik*     |                         |
-| `Bookmarks`            | *Alessandro Fragnani* | `alefragnani.bookmarks` |
+| Плагин                 | Идентификатор                       |
+| :--------------------- | :---------------------------------- |
+| `Better C++ Syntax`    | `jeff-hykin.better-cpp-syntax`      |
+| `C/C++ Extension Pack` | `ms-vscode.cpptools-extension-pack` |
+| `CMake`                | `twxs.cmake`                        |
+| `CMake Tools`          | `ms-vscode.cmake-tools`             |
+| `Markdown All in One`  | `yzhang.markdown-all-in-one`        |
+| `PlantUML`             | `jebbs.plantuml`                    |
+| `Qt tools`             | *tonka3000*                         |
+| `Trailing Spaces`      | `shardulm94.trailing-spaces`        |
+| `Bookmarks`            | `alefragnani.bookmarks`             |
+
 
 Навигация по посещённым участкам:
 

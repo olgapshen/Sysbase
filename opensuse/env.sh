@@ -13,39 +13,53 @@ export MAN_POSIXLY_CORRECT=1
 export REPOS=$HOME/repos
 # Папка со сборками
 export BUILDS=$HOME/builds
-# Путь к репозиторию пользовательских скриптов
-export SS_REPO=$REPOS/sysscripts
-# Путь к репозиторию Qt
-export QT_REPO=$REPOS/qt5
-# Путь к репозиторию OpenCV
-export CV_REPO=$REPOS/opencv
-# Путь к репозиторию OpenSSL
-export SL_REPO=$REPOS/openssl
-# Папка установки Qt
-export QT_HOME=/opt/qt5
-# Папка установки OpenCV
-export CV_HOME=/opt/opencv
-# Папка установки OpenSSL
-export SL_HOME=/opt/openssl
+# Папка с установками
+export INSTALLS=/opt
+# Имя проекта пользовательских скриптов
+export SS_SLUG=$REPOS/sysscripts
+# Имя проекта Qt
+export QT_SLUG=qt5
+# Имя проекта OpenCV
+export CV_SLUG=opencv
+# Имя проекта OpenSSL
+export SL_SLUG=openssl
+# Имя проекта LLVM
+export LL_SLUG=llvm-project
 
-PATH=$PATH:$SS_REPO/scripts
-PATH=$PATH:$QT_HOME/bin
-PATH=$PATH:$CV_HOME/bin
-PATH=$PATH:$SL_HOME/bin
-PATH=$PATH:$GQ_HOME
+APPS="$QT_SLUG $CV_SLUG $SL_SLUG $LL_SLUG"
+
+PATH=$PATH:$REPOS/$SS_SLUG/scripts
+PATH=$PATH:$INSTALLS/$QT_SLUG/bin
+PATH=$PATH:$INSTALLS/$CV_SLUG/bin
+PATH=$PATH:$INSTALLS/$SL_SLUG/bin
+PATH=$PATH:$INSTALLS/$GQ_SLUG
 export PATH
+
+# Предполагается, что LD_LIBRARY_PATH всегда пуст в начале
+LD_LIBRARY_PATH=$ORACLE_HOME/lib
+# Если подключить данную папку, TLS в сисеме перестаёт работать; возможно это
+# решилось бы при штатной установке проекта; с другной стороны это может
+# совершенно сломать всю систему;
+# TODO: решить этот вопрос
+#LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$INSTALLS/$SL_SLUG/lib64
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib:/usr/lib
+export LD_LIBRARY_PATH
 
 export QT_REF=v5.15.12-lts-lgpl
 export CV_REF=4.6.0
 export SL_REF=openssl-3.2.1
+export LL_REF=llvmorg-16.0.1
 
-export QT_PLUGIN_PATH=$QT_HOME/plugins
+export QT_PLUGIN_PATH=$INSTALLS/$QT_SLUG/plugins
 
 # Переконфигурируем Qt
-alias qt5config="$QT_REPO/configure \
-  -prefix $QT_HOME \
+alias qt5config="$REPOS/$QT_SLUG/configure \
+  -prefix $INSTALLS/$QT_SLUG \
   -confirm-license \
   -opensource \
+  -recheck \
+  -I /opt/openssl/include \
+  -ssl \
   -xcb \
   -no-opengl \
   -skip qt3d \
@@ -73,11 +87,19 @@ alias qt5config="$QT_REPO/configure \
 
 alias cv4config="cmake \
   -DCMAKE_BUILD_TYPE=DEBUG \
-  -DCMAKE_INSTALL_PREFIX=$CV_HOME $CV_REPO"
+  -DCMAKE_INSTALL_PREFIX=$INSTALLS/$CV_SLUG $REPOS/$CV_SLUG"
 
-alias sl3config="$SL_REPO/Configure \
-  --prefix=$SL_HOME \
-  --openssldir=$SL_HOME"
+alias sl3config="$REPOS/$SL_SLUG/Configure \
+  --prefix=$INSTALLS/$SL_SLUG \
+  --openssldir=$INSTALLS/$SL_SLUG"
+
+alias ll16config="cmake \
+  -B . \
+  -S $REPOS/$LL_SLUG/llvm \
+  -DLLVM_ENABLE_PROJECTS=clang \
+  -DLLVM_ENABLE_RUNTIMES=libcxx;libcxxabi \
+  -DCMAKE_BUILD_TYPE=DEBUG \
+  -DCMAKE_INSTALL_PREFIX=$INSTALLS/$LL_SLUG"
 
 # Удаляем внутренние репозитории не под контролем корневого репозитория
 alias untracked="git ls-files --others --exclude-standard | xargs rm -rf"

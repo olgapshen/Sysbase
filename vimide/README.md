@@ -2,9 +2,11 @@
 
 # VimIDE
 
-Тут я расскажу о работе в интерактивной консольной среде в том числе утилитах
-как `Lynx` и в общем, о том как превратить `vim` в `IDE` для `C++`-ных
-программ.
+Тут я расскажу о работе в интерактивной консольной среде. О том как превратить
+`vim` в `IDE` для `C++`-ных, а так же об утилитах как `Lynx` и `Mutt`.
+
+> В этом мануале используется `zypper` в качестве системы управления пакетами,
+> однако команда в конечном счёте зависит от вашего дистрибутива
 
 > `CtrlK` Пока ещё полностью не запустился, но `Termdebug` работает штатно
 
@@ -13,7 +15,7 @@
 - [VimIDE](#vimide)
 - [Оглавление](#оглавление)
 - [Lynx](#lynx)
-- [Mail](#mail)
+- [Mutt](#mutt)
 - [Vim](#vim)
 - [Vundle](#vundle)
 - [Gdb](#gdb)
@@ -45,7 +47,7 @@
 
 В общем всё очень похоже на `Vim`.
 
-# Mail
+# Mutt
 
 В терминале присутствуют несколько сред для работы с почтой. Очень удобная
 среди них: `mutt`. Но при вызове собственно говоря команды `mail` вы окажетесь
@@ -56,7 +58,7 @@
 
 ```sh
 # опустить заголовок писем
-$ mail -N
+mail -N
 ```
 
 * Вы окажетесь в режиме спика писем. Используйте `z` для движения впрёд по
@@ -87,13 +89,13 @@ $ mail -N
 Для вывода главной справки на русском:
 
 ```sh
-$ export LANG=ru_RU.UTF8
-$ man vim
+export LANG=ru_RU.UTF8
+man vim
 # Или
-$ man -L ru vim
+man -L ru vim
 ```
 
-Конфигурация `vim` для пользователя хранится в файле `$HOME/.vimrc`,
+Конфигурация `vim` для пользователя хранится в файле `HOME/.vimrc`,
 настоятельно рекомендуем добавить автонумерцию строк, комметарий в `.vimrc` -
 двойные кавычки: `"`:
 
@@ -145,14 +147,14 @@ set mouse=a
 
 ```sh
 # Отменяем less подобное поведение git branch
-$ git config --global pager.branch false
+git config --global pager.branch false
 ```
 
 Для того, что бы добавить несколько `url`-ов для в качестве `upstream`:
 
 ```sh
-$ git remote set-url origin --push --add url-one
-$ git remote set-url origin --push --add url-two
+git remote set-url origin --push --add url-one
+git remote set-url origin --push --add url-two
 ```
 
 # Vundle
@@ -171,7 +173,8 @@ git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 `:PluginInstall` при разработке, это не вариант, так как требуют слишком много
 телодвижений.
 
-Вот необходимая конфигурация для `Vundle`:
+Вот необходимая конфигурация для `Vundle`. Добавьте следующие строки в
+`~/.vimrc`:
 
 ```vim
 filetype off                  " required
@@ -180,28 +183,28 @@ call vundle#begin()
 Plugin 'VundleVim/Vundle.vim'
 Plugin <Plugin1>
 Plugin <PluginN>
-"Plugin 'file:///home/olga/repos/CtrlK'
+"Plugin 'file:///.../CtrlK'
 call vundle#end()            " required
 filetype plugin indent on    " required
 ```
 
-Как вы понимаете плагины добавляются в строках начинающихся с `Plugin`.
+Как вы понимаете плагины добавляются в строках начинающихся с `Plugin`. Каждый
+идентификатор плагина должен быть обрамлён одинарной кавычкой. В зависимости от
+указания имени плагина, плагин ищется в следующих местах:
 
-Рекомендуется установить:
+| Формат имени           | Пример                 | Область поиска       |
+| ---------------------- | ---------------------- | -------------------- |
+| несколько частей `uri` | `VundleVim/Vundle.vim` | В корне `github` (1) |
+| один `slug`            | `FuzzyFinder`          | В `vim-script` (2)   |
+| начинается с `file://` | `file:///.../CtrlK`    | Локально             |
+
+(1) `https://github.com/`\
+(2) `https://github.com/vim-script`
+
+Рекомендуется установить следующие плагины из `vim-script`:
 
 1. `FuzzyFinder`
 2. `L9`
-
-В зависимости от указания имени плагина, плагин ищется в следующих местах:
-
-| Формат имени           | Пример                 | Область поиска         |
-| ---------------------- | ---------------------- | ---------------------- |
-| несколько частей `uri` | `VundleVim/Vundle.vim` | В корне `github` $*^1$ |
-| один `slug`            | `FuzzyFinder`          | В `vim-script` $*^2$   |
-| начинается с `file://` | `file:///$REPOS/CtrlK` | Локально               |
-
-$*^1$ `https://github.com/`\
-$*^2$ `https://github.com/vim-script`
 
 Удаление плагина просиходит только если вы удалите строку из `.vimrc`,
 добавление если добавите.
@@ -209,10 +212,12 @@ $*^2$ `https://github.com/vim-script`
 Вот некоторые команды `Vundle`, они основаны на списке плагинов получаемом из
 `.vimrc`:
 
-1. `:PluginInstall` - Устанавливает плагины которых нет в
-   `~/.vim/bundle/<plugin>`
+1. `:PluginInstall` - Устанавливает плагины (1)
 2. `:PluginUpdate` - Обновляет
-3. `:PluginClean` - Удаляет плагины представления которых нет в `.vimrc`
+3. `:PluginClean` - Удаляет плагины (2)
+
+(1) Плагины которых нет в `~/.vim/bundle/<plugin>`\
+(2) Плагины представления которых нет в `.vimrc`
 
 # Gdb
 
@@ -250,7 +255,7 @@ $*^2$ `https://github.com/vim-script`
 Пример сессии.
 
 ```sh
-$ gdb
+gdb
 > file programm
 > file common.so
 > break main.cpp:353
@@ -412,15 +417,51 @@ map <S-F9> :Clear<CR>
 1. [`py-ctrlk`][16]
 2. [`CtrlK`][17]
 
-Склонируйте оба репозитория.
+Склонируйте оба репозитория. Установите пакет разработки `python3`:
 
-Установите `so`-шный `clang`: `sudo zypper install libclang libclang-devel`
+```sh
+sudo zypper install python311-devel
+```
 
-Посмотрите какая версия установилась: `locate libclang`.
+Тем или иным образом установите `libclang-devel`. Если в текущем состоянии
+вашего дистрибутива у вас нет необходимых пакетов, собирите `llvm` по
+[инструкции](../opensuse/README.md#llvm) в часте посвещённой `OpenSUSE`.
 
-Далее установите `python`-овский `clang`, но соответсвущей версии:
-`pip install clang=<VER>`. Если до этого, вы установили ошибочную версию,
-используйте: `pip uninstall clang`.
+Найдите версию вашей сборки `libclang`, если вы устанавливали через систему
+управления пакетами, то воспользуйтесь одной из следующих команд:
+
+```sh
+# С помощью locate, если вы создали соответствующую базу
+locate libclang
+# С помощью zypper
+zypper packages --installed-only | grep libclang
+```
+
+Если же вы собирали собственную сборку, то версия закодирована в использованном
+теге `git`-а.
+
+Перейдите в репозиторий `py-ctrlk`, создайте виртуальную среду, активируйте её:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+Далее установите `python`-овский `clang`. Перед этим найдите соответствующую
+версию:
+
+```sh
+pip index versions clang
+pip install clang==<VER>
+```
+
+Если до этого, вы установили ошибочную версию, используйте:
+
+```sh
+pip uninstall clang
+```
+
+> TODO: актуализировать
 
 `Python`-овский `clang` просит `so`-шник в формате `libclang-<VER>.so`, а мы
 имеем формат `libclang.so.<VER>`. Перейдите в папку `/usr/lib64` и выполните:
@@ -429,8 +470,8 @@ map <S-F9> :Clear<CR>
 Собирите и установите `py-ctrlk`, как указанно в мануале:
 
 ```sh
-$ python setup.py build
-$ sudo python setup.py install
+python setup.py build
+sudo python setup.py install
 ```
 
 В конфигурации `Vundle` заместо `Plugin 'SkidanovAlex/CtrlK'`
@@ -456,8 +497,8 @@ nmap <F12> :call CtrlKGetReferences()<CR>
 Запустите тесты в репозитории `py-ctrlk`:
 
 ```sh
-$ cd test
-$ ./test.py
+cd test
+./test.py
 ```
 
 > Так же есть `try.py`, но его необходимо доработать, тк он входит в

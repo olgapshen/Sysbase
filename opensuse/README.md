@@ -1,6 +1,6 @@
 # OpenSuse
 
-> Данный мануал является частью проекта [`Sysscripts`](../README.md), где я
+> Данный мануал является частью проекта [`Sysscripts`](../README.md); тут я
 > рассказываю об особенностях платформы `OpenSuse`, а так же сборки `Qt`
 
 # Оглавление
@@ -11,9 +11,13 @@
 - [Версионность](#версионность)
   - [Операционная система](#операционная-система)
   - [Версии ПО](#версии-по)
+- [Физические ресурсы](#физические-ресурсы)
 - [Установка системы](#установка-системы)
   - [Разблокировка firewall-а](#разблокировка-firewall-а)
   - [Первый логин](#первый-логин)
+- [Вопрос производительности](#вопрос-производительности)
+  - [Фазы конфигурации](#фазы-конфигурации)
+- [Swap](#swap)
 - [Статическая настройка сети](#статическая-настройка-сети)
 - [Переменные среды](#переменные-среды)
 - [Настройки](#настройки)
@@ -21,6 +25,7 @@
   - [Имя хоста](#имя-хоста)
   - [Настройка vim](#настройка-vim)
   - [Удалённый терминал](#удалённый-терминал)
+  - [LocateDB](#locatedb)
   - [Приложения](#приложения)
   - [Sysscripts](#sysscripts)
   - [Папки сборок](#папки-сборок)
@@ -29,7 +34,6 @@
 - [Дополнительные пакеты](#дополнительные-пакеты)
   - [Установка Xrdp](#установка-xrdp)
   - [Установка SSH](#установка-ssh)
-- [Внешние папки](#внешние-папки)
 - [Настройка сети](#настройка-сети)
 - [Zypper](#zypper)
 - [Сертификаты](#сертификаты)
@@ -37,7 +41,6 @@
   - [Java](#java)
 - [Git](#git)
 - [Qt](#qt)
-  - [Openssl](#openssl)
   - [Репозиторий и готовые сборки](#репозиторий-и-готовые-сборки)
   - [Небольшое исследование](#небольшое-исследование)
   - [Зависимости Qt](#зависимости-qt)
@@ -50,14 +53,19 @@
 - [OpenCV](#opencv)
   - [Подготовка OpenCV](#подготовка-opencv)
   - [Сборка OpenCV](#сборка-opencv)
-- [OpenSSL](#openssl-1)
+- [OpenSSL](#openssl)
   - [Подготовка OpenSSL](#подготовка-openssl)
   - [Сборка OpenSSL](#сборка-openssl)
+- [LLVM](#llvm)
+  - [Подготовка LLVM](#подготовка-llvm)
+  - [Сборка LLVM](#сборка-llvm)
 - [GitQlient](#gitqlient)
 - [Cmake](#cmake)
 - [Железо](#железо)
 - [Virtual Box](#virtual-box)
+  - [Внешние папки](#внешние-папки)
 - [Матрица](#матрица)
+- [Snap](#snap)
 - [Некоторые заметки](#некоторые-заметки)
 - [Термины и сокращения](#термины-и-сокращения)
 - [Полезные ссылки](#полезные-ссылки)
@@ -119,6 +127,20 @@
 | `Qt`      | `v5.15.12-lts-lgpl` | `QT_REF`   |
 | `OpenCV`  | `4.6.0`             | `CV_REF`   |
 | `OpenSSL` | `openssl-3.2.1`     | `SL_REF`   |
+| `LLVM`    | `llvmorg-16.0.1`    | `LL_REF`   |
+
+# Физические ресурсы
+
+На базовом этапе мы располагаем следующими физическими ресурсами:
+
+|               | `Tumbleweed`           | `Leap`                |
+| :------------ | :--------------------- | :-------------------- |
+| `Motherboard` | `MSI H110M PRO-VD`     | `ChWay Sherman J 5.0` |
+| `RAM`         | `3.7 Gi`               | `1.7 Gb`              |
+| `Disk`        | `400 Gb`               | `26 Gb`               |
+| `CPU`         | `Intell Pentium G4600` | `Intel Celeron J1900` |
+| `Frequency`   | `3.60GHz`              | `1.99GHz`             |
+| `Cores`       | `4`                    | `4`                   |
 
 # Установка системы
 
@@ -135,6 +157,9 @@
 > серъёзными проблемами в виде прыгающего экрана, то вам стоит использовать
 > переключиться на `VGA`
 
+При настройке файла подкачки (`Swap`) установите его в два раза больше объёма
+`ОЗУ`. Настройте файл подкачки в виде раздела диска или логического тома.
+
 При создании пользователя, выберите учётную запись, пусть к примеру это будет
 `ilmarinen`. Выберите пароль. Оставьте галочку
 *присвоения того же пароля системну пользователю*.
@@ -142,19 +167,55 @@
 При настройке установки, слева, в секции `Installation Overview` под заголовком
 `Installation`, установите следующие опции, как показано ниже на картинке:
 
-* Firewall will be enabled
-* SSH service will be enabled
-* SSH port will be open
+* *Firewall will be enabled*
+* *SSH service will be enabled*
+* *SSH port will be open*
 
 ![SSHServer](doc/img/installation-ssh-enabled.png "Настройка SSH сервера")
+
+Учтите, что сетевой образ `Tumbleweed` имеет срок годности. Когда последняя
+версия сетевого установщика достаточно разрйдётся с образом в сети, вы получите
+сообщение вроде:
+
+> You don't have appropriate image for such mode, download it and restart
+
+В данном случае единственное решение это перезалить образ на флешку.
 
 ## Разблокировка firewall-а
 
 Во время определения сети, вы можете сталкнуться с проблемой блокировки
 `Firewall`-а, если последний имеется в вашей сети, даже если вы разблокировали
 `Firewall` для `IP` привязанного к данному хосту, так как во время установки
-система берёт новый `IP`. Для разблокировки последнего запустите команду
-передавая пользователя и пароль:
+система берёт новый `IP` по `DHCP`. В данном случае, вы можете использовать
+один из двух методов:
+
+1. Установить настройки сети свободного разблокированного адреса
+2. Запустить комманду разблокировки
+
+Для настройки сети, вернитесь на главный экран перейдите в меню с названием
+типа `Expert Mode`, там `Network config`, откажитесь оставлять настроенные
+данные, откажитесь от `DHCP`. Далее действуйте следующим образом:
+
+1. Найдите свободный разблокированный `IP` адресс
+2. Откройте настроки вашей сети с доступного компьюера
+3. Расчитайте маску подсети (количество бит) (1)
+4. Пропингуйте шлюз (`router`)
+5. Пропингуйте `DNS Google`-а: `8.8.8.8`
+
+(1) К примеру для `255.255.255.254`, это будет `ipaddress/23`
+
+Перейдите к настройки сети, заполняя необходимую информацию, строку на каждом
+окне:
+
+```
+xx.yy.zz.ww/nn
+xx.yy.zz.1
+8.8.8.8
+пустое
+```
+
+Для разблокировки `firewall`-а запустите команду передавая пользователя и
+пароль:
 
 ```sh
 curl --max-time 1 -k -i -s -u <USER>:<PASSWORD> \
@@ -175,6 +236,114 @@ curl --max-time 1 -k -i -s -u <USER>:<PASSWORD> \
 При первом логине, сконфигурируйте `sudo` для пользователя `ilmarinen` с
 помощью комманды `sudo visudo` добавив необходимую запись, как указанно ниже.
 Для команды `sudo` используйте тот же пароль что для пользовател `ilmarinen`.
+
+# Вопрос производительности
+
+Как известно предполагается, что мы будем использовать компьютеры с
+ограниченным объёмом памяти. Если для продового режима (`Leap`) выделенных,
+ресурсов нам вполне достаточно, то для режима разработки (`Tumbleweed`) мы
+ощущаем серьёзный дифицит. На данный момент мы располагаем следующими
+горлышками бутылки в сравнении со среднестатистической станцией разработки:
+
+> `3.7 Gi RAM`, `3.6 GHz x 4`
+
+В попытках оптимизировать систему и найти оптимальные настройки, я написала
+небольшой пост в поддержку `OpenSUSE` на `Telegramm` [канале][30]:
+
+---
+Hi! I sorry that this is kind of longread, but I have much question accumulated
+for months of work. We have old point of sale system run with `Qt4/Qr3Support`
+over `CentOS 6` 32 bit with `qmake` build configuration system. I porting it to
+`Qt5` `v5.15.12-lts-lgpl` over last `OpenSUSE` 64 bit with `CMake` build
+configuration system. I write kind of [blog][29] for this project, sorry for
+Russian. I have computer with 4 `Gb RAM`, and I can not demand more. I can, but
+I should not, thus old stations have 4 `Gb RAM` also. I need to make two
+distributions for our point of sale station. One - `POS` for market
+(`POS` prod) and another - development environment (`POS` dev). I decided to
+use `Leap` for `POS` prod and `Tumbleweed` for `POS` dev. I started with
+`Tumbleweed` and from beginning get noising auth reqest from Plasma.
+
+![AuthRequest](doc/img/PlasmaAuth.png "Noising Auth Request")
+
+I joined to `IRC` chat `#openSUSE` on `liberachat`. People there told me that
+if I will create account on `OpenSUSE`, they will join me to `Matrix`. I made
+account: `ya.olgapshenichnikova@yandex.ru`. I continued with my project. I
+compiled several frameworks: `SSL`, `Qt`, `OpenCV` and other. `SSL` - it was
+required by `Qt`. `Qt` doesn't links `ssl` installed by default nor find
+headers. `libssl` package doesn't solves the problem. `Qt` successfully built,
+but leaves `QtDoc` unbuilt thus issues with `llvm`. It was standart warning:
+
+> WARNING: QDoc will not be compiled, probably because libclang could not be
+> located. This means that you cannot build the Qt documentation\
+> \
+> Either ensure that llvm-config is in your PATH environment variable, or set
+> LLVM_INSTALL_DIR to the location of your llvm installation.\
+> On Linux systems, you may be able to install libclang by installing the
+> libclang-dev or libclang-devel package, depending on your distribution.\
+> On macOS, you can use Homebrew's llvm package.\
+> On Windows, you must set LLVM_INSTALL_DIR to the installation path.
+
+`OpenCV` we need for our "product recognition" when selling. I need also good
+`Git UI` such as `TortoiseGit` for `Windows`. I tried `Guitar` and `GitQlient`,
+but it is really lack of functionality... `Guitar` isn't run now at all. I
+tried it year ago. `GitQlient` have no ability even to change size of frames in
+`UI` window... Despite the fact, that we will use `QtCreator` (I didn't built
+it yet) we also need `Visual Studio Code`. I need make our application be build
+both with `QtCreator` and `VSCode`. I found that `Tumbleweed` sheeped with
+custom `Code - OSS` from `obs://build.opensuse.org/devel:tools:ide`.
+But! It just have blue `C/C++ Extension Pack` from `franneck94` and it doesn't
+works (`F12` doesn't works). The red `C/C++ Extension Pack` by `Microsoft`
+isn't available in `Code - OSS`. I removed `Code - OSS` and installed `Code`
+from `https://packages.microsoft.com/yumrepos/vscode`. Now the red
+`C/C++ Extension Pack` was available and `F12` now working. But! It was very
+very very slow. I tried `Xfce` instead of `Plasma`. It was still slow. We have
+320 `cpp` files, by the way. It is importatnt to say that `Plasma` is kind of
+very good environment. I watch resources used by in `htop`, and admitted that
+it is effective enough. I removed last `Code` and installed `Code - OSS` back.
+It was strange, but red `C/C++ Extension Pack` now became available. It became
+faster, but still slow. I think about `IceWM`, but just issue of keyboard
+switchind holds me from this step. I don't know how slow `QtCreator` will be.
+
+Now several questions related to things I mentioned above:
+
+1. Is there some known issue with `libclang` for `Qt` build?
+2. Is there some known issue with `libssl` for `Qt` build?
+3. What about noising auth request from `Plasma`?
+4. Where is best chat to ask all my questions?
+5. Is there `Git UI` for `OpenSUSE` such as `TortoiseGit`?
+6. Why red `C/C++ Extension Pack` wasn't available in `Code OSS`?
+7. Why it became available in `Code OSS` after oficial `Code` installation?
+8. Why blue `C/C++ Extension Pack` don't gives `C++` editor functionality?
+9. Is `Plasma` not much worst than `Xfce`/`LXDE`?
+10. Is it possible to run `VStudio Code` on 320 `cpp` files with 4 `Gb` `RAM`?
+11. If I need to rise question about RAM increasing?
+---
+
+## Фазы конфигурации
+
+На пост выше конечно не ответили, но он очень помог собраться с мыслями. Итак!
+Учитывая, что у нас с одной стороны недостаток ресурсов относительно нашего
+расточительного времени, а с другой собственно говоря очень расточительное ПО,
+я решила определить три фазы в которых смогут быть наши станции разработки
+относительно объёма `ОЗУ` и набора програмного обеспечения. Средняя фаза
+предполагает объём памяти между базовой и полной. Для продового режима, как
+сказанно выше, указанных объёмов вполне достаточно:
+
+|         | Объём `ОЗУ` | Window Manager | Среда разработки             |
+| :------ | :---------- | :------------- | :--------------------------- |
+| Базовая | `4 Gi`      | `IceWM`        | `vim`(1)/`QtDesiner`         |
+| Средняя |             | `IceWM`        | [`QDevelop`][33]/`QtDesiner` |
+| Полоная | `8 Gi`      | `Plasma`       | `QtCreator`                  |
+
+(1) `vim` + `Termdebug` + `CtrlK`
+
+# Swap
+
+Файл подкачки (`swap`) рекомендуется делать в полтора два раза больше объёма
+`ОЗУ`. Файл подкачки сыграет большую роль при сборки мегалитических проектов
+типа `llvm`, так как последнее время на плюсах всё больше используют шаблоны,
+что экспоненционально [увеличивает][31] расход ресурсов. Если система при
+установке создала недостаточно большой файл подкачки, увеличим его.
 
 # Статическая настройка сети
 
@@ -269,7 +438,7 @@ sudo hostnamectl set-hostname <HOSTNAME>
 Не забудьте затем прописать запись в `/etc/hosts`, к примеру:
 
 ```
-192.168.1.30     northwind northwind.ru
+192.168.1.30     kalevala kalevala.ru
 ```
 
 ## Настройка vim
@@ -289,21 +458,43 @@ ssh-keygen -y -f ~/.ssh/id_rsa > ~/.ssh/id_rsa.pub
 Интегриуйте ключ в файл `authorized_keys` на хосте `OpenSUSE`:
 
 ```sh
-ssh-copy-id -i ~/.ssh/id_rsa ilmarinen@host
+ssh-copy-id -i ~/.ssh/id_rsa ilmarinen@kalevala
+```
+
+## LocateDB
+
+Создайте базу данных очень полезной утилиты `locate`:
+
+```sh
+sudo updatedb
+```
+
+Пример использования утилиты. Допустим вам надо найти расположение файла
+`icewm/menu` в системе:
+
+```sh
+locate icewm/menu
 ```
 
 ## Приложения
 
-Установите следующий список полезных и необходимых приложений, используя
-команду `sudo zypper install ...`:
+Тут привидён список необходимых приложений доступных из базовых репозиториев
+`OpenSUSE`. Установите следующий список полезных и необходимых приложений,
+используя команду `sudo zypper install <PACKAGE>`:
 
 * `git` - система контроля версий
 * `gcc-c++` - компилятор `C++`
 * `make` - система сборки
 * `cmake` - система конфигурации сборки
+* `ruby` - компилятор `ruby`
 * `htop` - монитор производительности
 * `elinks` - консольный клиент интернета
 * `neofetch` - консолидатор информации о системе
+
+Удалите следующие приложения используя команду `sudo zypper remove <PACKAGE>`
+в виду их расточительности или иных причин:
+
+* `kalendarac` - календарь; занимает много места в `ОЗУ`
 
 ## Sysscripts
 
@@ -317,14 +508,14 @@ ssh-copy-id -i ~/.ssh/id_rsa ilmarinen@host
 > TODO: Устанавливать приложения по стандартным путям типа `/usr/local/bin`
 
 ```sh
-sudo mkdir -p $QT_HOME $CV_HOME $SL_HOME
+sudo mkdir -p $APPS
 ```
 
 Промежуточные - объектные файлы, будем располагать в папках `$HOME/builds`:
 
 ```sh
 cd $BUILDS
-mkdir qt5 opencv openssl
+mkdir $APPS
 ```
 
 # Расскладка клавиатуры
@@ -430,44 +621,19 @@ sudo firewall-cmd --permanent --zone=public --add-service=ssh
 sudo firewall-cmd --reload
 ```
 
-# Внешние папки
-
-При разработке на виртуальной машине, вам необходимо будет монтировать папки,
-настроенные как общие. Для этого в первую очередь настройте общую папку в
-конфигурации виртуальной машины.
-
-Для активации `share`-а рекомендуется использовать `alias`: `share` в `~/.bashrc`:
-
-```sh
-share
-```
-
-При необходимости автомонитования на `OpenSuse` это реализуется с помощью
-`systemd`.
-
----
-Так же, вы можете сделать эти настройки постоянными, внеся нужные изменения в
-файл `/etc/fstab`. Но это не рекомендуется, так как образ не будет полностью
-портабельным на реальный хост.
-
-Вот строка для файла `/etc/fstab` в случае `CentOS`.
-
-```
-share    /mnt/share   vboxsf    defaults    0 0
-```
-
 # Настройка сети
 
 Если вы запускаете виртуальную машину, всегда выберайте тип сети:
 "сетевой мост".
 
-Выберите имя хоста, к примеру `nordwind`.
+Выберите имя хоста, к примеру `kalevala`.
 
 ---
 Настройте в файле `/etc/sysconfig/network` параметр `HOSTNAME` в формате
-`<HOSTNAME>.domain.name`, к примеру `nordwind.domain.central`.
+`<HOSTNAME>.domain.name`, к примеру `kalevala.domain.central`.
 
-Проверьте свой `IP` с помощью комманды `ifconfig`, к примеру он: `10.11.9.70`.
+Проверьте свой `IP` с помощью комманды `ifconfig`, к примеру он:
+`192.168.1.70`.
 
 Убедитесь, что `IP` будет постоянным. Иногда, в случаях когда мы не можем
 сконфигурировать `DHCP`, а в случае виртуальной машины мы используем сетевой
@@ -519,7 +685,7 @@ Telnet('192.168.1.112', 1521).interact()
 `<IP> <HOSTNAME>.domain.name <HOSTNAME>`, к примеру:
 
 ```
-192.168.1.113	nordwind.domain.name nordwind
+192.168.1.113	kalevala.domain.name kalevala
 ```
 
 # Zypper
@@ -610,12 +776,12 @@ openssl x509 -in KoshDomain.crt -text | less
 Установим сертификаты в системе:
 
 ```sh
-sudo cp /opt/certspos.crt /usr/share/pki/trust/
+sudo cp /opt/certspos.crt /usr/share/pki/trust/anchors
 sudo update-ca-certificates
 ```
 
 > При изменениях в сертификате, для применения в `Docker registry`, сам
-> `registry` нужно удалить и пересоздать, так же пересоздать секреты. О
+> `registry` нужно удалить и пересоздать, так же пересоздать секреты; о
 > `Docker registry` написано ниже
 
 ## Java
@@ -732,64 +898,12 @@ git config --global --edit
 `GitLab CI` в контейнере `Docker`-а на `appsrv-1`, и подробно рассмотрена
 далее.
 
-[Вот][9] богатый источник документации по `Qt4`.
+[Вот][9] богатый источник документации по `Qt4`. Перед сборкой `Qt` соберите
+[`OpenSSL`](#openssl). Обратите внимание на опцию `-I /opt/openssl/include`
+в настройках `configure`. Прочитайте [подробнее][27] о сборке `Qt` с `OpenSSL`.
 
-## Openssl
-
-> В некоторых случаях вам придётся понизить версию `openssl`, так как некоторые
-> версии `Qt` не собираются с установленной на `OpenSuse 15.3` версией
-> `openssl 1.1`.
-
-> TODO: скорее всего переписать эту часть, учитывая что как минимум для
-> `Guitar` мы собираем отдельную установку `openssl`
-
-Необходимо понизить версию `OpenSSL` с `1.1` на `1.0`. Глвное сделать это не
-удалив половину операционной системы. Если вдруг в результате своих действий
-вы видете большой список пакетов, которые будут удалены, значит вы зашли не
-туда.
-
-Общая стратегия:
-
-1. Поудалять как можно больше пакетов `ssl 1.1`
-2. Безболезнено подминить на `ssl 1.0`
-
-Некоторые замечания:
-
-1. Как уже сказано, опасайтесь удаления большого количества пакетов
-2. В `OpenSuse` используется не `ssl`, а `openssl`
-3. Как и в других случая, есть 2 вида пакетов
-    1. обычный в формате `libopenssl1_0_0`
-    2. `dev` в формате `libopenssl-1_0_0-devel`, обратите в нимание не тире
-       перед версией
-
-Посмотрите какие пакеты у вас установлены:
-
-```sh
-rpm -qa | grep ssl
-```
-
-Удалите то, что можно из версий `1.1`.
-
-Запустите установку `dev` версии `1.0`:
-
-```sh
-sudo zypper in libopenssl-1_0_0-devel
-```
-
-Вам скажут о конфликтах и предложат несколько путей решения, согласитесь на
-первый: удаление `1.1` с понижением версий некоторых пакетов.
-
-Возможно вам придётся вернуть версию `1.1`, тогда выполните следующее пожертвовав
-пакетом `mokutil`:
-
-```sh
-rpm -qa | grep ssl
-sudo rpm -e mokutil
-sudo rpm -e libopenssl1_0_0
-sudo rpm -e libopenssl-1_0_0-devel
-sudo zypper in openssl-1_1
-sudo zypper in libopenssl-devel
-```
+> TODO: проверить, от куда `Qt` тянет библиотеки `OPenSSL`, если мы казываем
+> при сборке лишь папку с заголовками через опцию `-I`
 
 ## Репозиторий и готовые сборки
 
@@ -823,7 +937,7 @@ diff -qr \
   --exclude=".commit-template" \
   --exclude=".tag" \
   $1 \
-  $QT_REPO
+  $REPOS/$QT_SLUG
 ```
 
 Скачиваем `release`, к примеру `5.15.2` и разархивируем его содержимое в папку:
@@ -880,7 +994,7 @@ git status
 Переключаем наш основной репозиторий на иной, к примеру `v5.6.0` тег:
 
 ```sh
-cd $QT_REPO
+cd $REPOS/$QT_SLUG
 git checkout v5.6.0
 # Выполняем соответствующие действия, как в прошлый раз
 ```
@@ -908,7 +1022,16 @@ git checkout v5.6.0
 
 Убедитесь, что установлены необходимые пакеты.
 
+Общие:
+
+```sh
+sudo zypper in \
+  libzstd-devel
+```
+
 `Libxcb`:
+
+> TODO: перепроверить
 
 ```sh
 sudo zypper in \
@@ -920,18 +1043,20 @@ sudo zypper in \
   xcb-util-wm-devel \
   libxkbcommon-x11-devel \
   libxkbcommon-devel \
-  libXi-devel
+  libXi-devel \
+  libzstd-devel
 ```
 
 `Qt WebKit`:
 
+> TODO: перепроверить
+
 ```sh
-sudo zypper in flex bison gperf libicu-devel ruby
+sudo zypper in flex bison gperf libicu-devel
 ```
 
-Не устанавливайте `Qt WebEngine` из за конфликтов.
-
-При сборке `Qt WebEngine` вы можете столкнуться с ещё не решённой ошибкой:
+Не устанавливайте `Qt WebEngine` из за конфликтов. При сборке `Qt WebEngine` вы
+можете столкнуться с ещё не решённой ошибкой:
 
 > No package 'nss' found\
 > Could not run pkg-config.
@@ -949,7 +1074,7 @@ sudo zypper in libnss_nis2
 
 ```sh
 cd $REPOS
-git clone git://code.qt.io/qt/qt5.git && cd qt5
+git clone git://code.qt.io/qt/$QT_SLUG.git && cd $QT_SLUG
 git checkout $QT_REF
 ```
 
@@ -1097,8 +1222,8 @@ perl init-repository --module-subset=default,-qtwebengine -f
 необходимо применить:
 
 ```sh
-cd $QT_REPO/qtbase
-git apply $SS_REPO/opensuse/xcb.patch
+cd $REPOS/$QT_SLUG/qtbase
+git apply $REPOS/$SS_SLUG/opensuse/xcb.patch
 ```
 
 ## Модули Qt
@@ -1169,10 +1294,9 @@ git apply $SS_REPO/opensuse/xcb.patch
 
 ## Сборка Qt
 
-Выберем папку для сборки `Qt`, пусть это будет значение переменной `QT_HOME`
-Убедитесь, что переменные `QMAKEPATH` и `QMAKEFEATURES` не установлены. При
-этом в `~/.bashrc` установленна переменная `QT_REPO` с путём к репозиторию
-`Qt`.
+Сборка `Qt` у нас располагается в папке `INSTALLS/QT_SLUG`. Убедитесь, что
+переменные `QMAKEPATH` и `QMAKEFEATURES` не установлены. При этом в
+`~/.bashrc` *применяется* (`source`) скрипт [`env.sh`](env.sh).
 
 Запустите настройку сборки из созданной ранее папки с помощью `alias`-а
 `qt5config`. Очень вероятно, что вам потребуется модифицировать `alias`
@@ -1187,7 +1311,7 @@ git apply $SS_REPO/opensuse/xcb.patch
 подготовку к сборке:
 
 ```sh
-cd $BUILDS/qt5
+cd $BUILDS/$QT_SLUG
 # Настраиваем сборку
 qt5config
 ```
@@ -1198,7 +1322,7 @@ qt5config
 
 ```sh
 # Выполняем инициализацию через вызов информативного вывода
-$QT_REPO/configure -h
+$REPOS/$QT_SLUG/configure -h
 ```
 
 Для отладки процесса настройки сборки и перенаправления вывода в удобный
@@ -1296,7 +1420,7 @@ qmake CONFIG+=debug GitQlient.pro
 
 ```sh
 cd $REPOS
-git clone https://github.com/opencv/opencv.git && cd opencv
+git clone https://github.com/opencv/$CV_SLUG.git && cd $CV_SLUG
 git checkout $CV_REF
 ```
 
@@ -1305,7 +1429,7 @@ git checkout $CV_REF
 Запускаем подготовку к сборке:
 
 ```sh
-cd $BUILDS/opencv
+cd $BUILDS/$CV_SLUG
 # Запускаем сборку
 cv4config
 ```
@@ -1319,14 +1443,10 @@ sudo make install
 
 # OpenSSL
 
-Для сборки `Guitar` нам придётся отдельно собрать `OpenSSL`. Всвете отсутствия
-пакета `libssl` в `OpenSUSE`, нам вполне может понадобится данная сборка и в
-иных проектах. Результат сборки `OpenSSL` мы расположим отдельно от
-стандартного дерева `/usr`, дабы не нарушить консистентность всего дестрибутива
-`OpenSUSE`.
-
-> TODO: перешли на `GitQlient`, возможно уже не понадобиться отдельно собирать
-> `OpenSSL`
+В свете отсутствия соответствующего нашим требованиям `libssl` в `OpenSUSE`,
+нам понадобится ручная сборка `OpenSSL` для `Qt` и иных проектов. Результат
+сборки `OpenSSL` мы расположим отдельно от стандартного дерева `/usr`, дабы не
+нарушить консистентность всего дестрибутива `OpenSUSE`.
 
 ## Подготовка OpenSSL
 
@@ -1334,7 +1454,7 @@ sudo make install
 
 ```sh
 cd $REPOS
-git clone https://github.com/openssl/openssl.git && cd openssl
+git clone https://github.com/openssl/$SL_SLUG.git && cd $SL_SLUG
 git checkout $SL_REF
 ```
 
@@ -1343,7 +1463,7 @@ git checkout $SL_REF
 Запустите подготовку к сборке:
 
 ```sh
-cd $BUILDS/openssl
+cd $BUILDS/$SL_SLUG
 # Запускаем сборку
 sl3config
 ```
@@ -1360,6 +1480,77 @@ perl configdata.pm --dump | less
 make -j$(nproc)
 sudo make install
 ```
+
+# LLVM
+
+`LLVM` как надпроект `libclang` это решение для разбора кода `C/C++`, что
+позволяет интерактивным средам (`IDE`) совершать навигацию по коду и авто
+Проект `LLVM` пригодится нам для сборки `QtDoc` а так же создания
+[интерактивной](../vimide/README.md#ctrlk) среды разработки.
+
+## Подготовка LLVM
+
+Репозиторий проекта очень большой. В своём чистом виде он берёт более 4 `Gb`.
+По сему мы воспользуемся опцией `shallow clone`, что сократит размер на 2 `Gb`.
+Будьте готовы, что в любом случае клонирование и выбор тега займёт некоторое
+время:
+
+```sh
+cd $REPOS
+# Экономим время копирования
+git clone --depth 1 https://github.com/llvm/$LL_SLUG.git && cd $LL_SLUG
+git config --add remote.origin.fetch '^refs/heads/tags/'$LL_REF
+git fetch origin refs/tags/$LL_REF
+git checkout $LL_REF
+```
+
+> TODO: ограничить по скачиванию так же остальные релевантные репозитории
+
+Если вы случайно скачали лишные коммиты, репозиторий можно почистить следующим
+образом:
+
+```sh
+git tag -d $(git tag -l)
+# Возможно потребуется сделать git pull
+#git pull --depth 1
+git gc --prune=all
+```
+
+## Сборка LLVM
+
+Весь `llvm` будет собрать нереально. Это займёт минимум сутки на компьютере
+с 4-я `Gb` памяти и 4-мя ядрами `Intel(R) Pentium(R) 3.60GHz`.
+`alias` `ll16config` включает параметр: `-DLLVM_ENABLE_PROJECTS=clang`,
+который активирует только проект `clang`. Но и это тединственный проект будет
+собираться не менее часа. Запустите подготовку к сборке:
+
+```sh
+cd $BUILDS/$LL_SLUG
+# Запускаем сборку
+ll16config
+```
+
+Если же вы решите настроить сборку всех проектов, то на следующем этапе вы
+можете выбрать определённую цель, и собрать именно её:
+
+```sh
+# Вывидете спиок целей
+cmake --build . --target help | less
+# Соберите нужную цель
+cmake --build build -- <TARGET>
+```
+
+> TODO: почему то при выводе целей нет clang, понять как это работает
+
+Если же вы использовали `LLVM_ENABLE_PROJECTS`, то запустите процесс сборки, и
+затем установки:
+
+```sh
+make -j$(nproc)
+sudo make install
+```
+
+Сборка займёт несколько часов или более.
 
 # GitQlient
 
@@ -1521,6 +1712,32 @@ sudo reboot
 
 Пока система более менее не пришла к стабильному состоянию.
 
+## Внешние папки
+
+При разработке на виртуальной машине, вам необходимо будет монтировать папки,
+настроенные как общие. Для этого в первую очередь настройте общую папку в
+конфигурации виртуальной машины.
+
+Для активации `share`-а рекомендуется использовать `alias`: `share` в `~/.bashrc`:
+
+```sh
+share
+```
+
+При необходимости автомонитования на `OpenSuse` это реализуется с помощью
+`systemd`.
+
+---
+Так же, вы можете сделать эти настройки постоянными, внеся нужные изменения в
+файл `/etc/fstab`. Но это не рекомендуется, так как образ не будет полностью
+портабельным на реальный хост.
+
+Вот строка для файла `/etc/fstab` в случае `CentOS`.
+
+```
+share    /mnt/share   vboxsf    defaults    0 0
+```
+
 # Матрица
 
 И на последок. Хотите незабываемых ощущений? Почувствовать себя Нео и
@@ -1544,23 +1761,59 @@ sudo reboot
 установлен клиент `IRC` - `irssi`, запустите его и подключитесь к необходимому
 каналу:
 
-```sh
+```irc
 irssi
 set nick <Nickname>
 /server list
 /connect liberachat
 ```
 
+Настройте `irssi` на автоподключение с вашим ником:
+
+```irc
+/server add -auto -network liberachat irc.libera.chat
+/network add -nick <Nickname> liberachat
+/channel add -auto #openSUSE liberachat
+```
+
+> TODO: почему то не работает автоподключение к каналу, проверить; настроить
+> автоустановку `window hidelevel`
+
 Стоит так же установить подавление избыточных для нас системных оповещений о
 подключении и отключении пользователей:
 
-```sh
+```irc
 /window hidelevel +joins +parts +quits
 ```
 
 Вот пример моего вопроса в поддержку:
 
 ![IRC](doc/img/irssi.png "Общенеи с поддержкой")
+
+# Snap
+
+> Если вдруг вам понадобиться `snap`, то вот инструкция его установки
+
+Часть приложений не доступны из *родных* репозиториев `OpenSUSE`, или же
+обладают некоторыми недостатками, из за которых их использование затруднено.
+Для этого существует кросплатформенный репозиторий `snap`. При добавлении
+репозитория укажите нужный раздел вместо `<DIST>`. Для `Tumbleweed` это будет
+`openSUSE_Tumbleweed`. Выберите нужный раздел из [списка][28]. Установите и
+настройте систему управления пакетами `snap`:
+
+```sh
+sudo zypper addrepo --refresh \
+  https://download.opensuse.org/repositories/system:/snappy/<DIST> \
+  snappy
+sudo zypper --gpg-auto-import-keys refresh
+sudo zypper dup --from snappy
+sudo zypper install snapd
+sudo systemctl enable --now snapd
+sudo systemctl enable --now snapd.apparmor
+```
+
+> Возможно у вас останется `warning` по поводу разрешение на запуск
+> `snapd.apparmor`
 
 # Некоторые заметки
 
@@ -1630,6 +1883,7 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 * [Документация по Linx][18]
 * [Cache в GitLab CI][19]
 * [Документация по Qt4][22]
+* [Используемая материнская плата][32]
 
 [1]: https://docs.oracle.com/cd/B19306_01/server.102/b14215/exp_imp.htm
 [2]: https://habr.com/ru/company/otus/blog/424761/
@@ -1654,3 +1908,10 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 [24]: https://code.qt.io/cgit/qt/qt5.git/refs/
 [25]: https://en.opensuse.org/openSUSE:IRC_list
 [26]: https://opencv.org/
+[27]: https://myprogrammingnotes.com/build-qt-ssl-support.html
+[28]: https://download.opensuse.org/repositories/system:/snappy/
+[29]: https://github.com/olgapshen/Sysbase/tree/master/opensuse
+[30]: https://t.me/opensuse
+[31]: https://www.linux.org.ru/forum/general/14648056
+[32]: https://ru.msi.com/Motherboard/H110M-PRO-VD/Specification
+[33]: https://ru.wikipedia.org/wiki/QDevelop

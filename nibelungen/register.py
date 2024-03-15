@@ -12,7 +12,7 @@ def help():
     print(' register    - зарегистрировать')
     print(' dryrun      - сухая прогонка')
     print('Пример:')
-    print(' ./register.py /repos/nordwind Ae_o9hd_lz5gLKdbrRSv register')
+    print(' ./register.py /repos/kalevala Ae_o9hd_lz5gLKdbrRSv register')
 
 if len(sys.argv) == 4:
     path  = sys.argv[1]
@@ -58,4 +58,3 @@ if len(sys.argv) == 4:
         print('Неизвестная команда')
 else:
     help()
-
