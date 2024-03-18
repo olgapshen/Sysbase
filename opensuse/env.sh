@@ -16,7 +16,7 @@ export BUILDS=$HOME/builds
 # Папка с установками
 export INSTALLS=/opt
 # Имя проекта пользовательских скриптов
-export SS_SLUG=$REPOS/sysscripts
+export SS_SLUG=sysscripts
 # Имя проекта Qt
 export QT_SLUG=qt5
 # Имя проекта OpenCV
