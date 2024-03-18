@@ -1157,9 +1157,9 @@ docker load -i gradle.img
 # Подключиться к серверу
 openssl s_client -connect gitlab.kalevala.ru:443
 # Слепок сертификата [-sha256|-sha1]
-openssl x509 -noout -fingerprint -sha1 -inform pem -in Ilmarinen.pem
+openssl x509 -noout -fingerprint -sha1 -inform pem -in ilmarinen.pem
 # Информация о сертификате
-openssl x509 -text -noout -in Ilmarinen.pem
+openssl x509 -text -noout -in ilmarinen.pem
 ```
 ---
 Важно помнить при составлении скриптов для `alpine`: Не пишите в `shebang`-е

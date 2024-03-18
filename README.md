@@ -13,8 +13,7 @@
 - [PLSQL](plsql/README.md) - полезные блоки кода для работы с `Oracle`-ом
 - [Clonezilla](clonezilla/README.md) - клонирование систем
 
-> В данном документе переменные среды приводятся без знака `$`, к примеру:
-> `CV_REF`
+Переменные среды приводятся без знака `$`, к примеру: `CV_REF`.
 
 # Оглавление
 
@@ -377,10 +376,10 @@ $ sudo python2 get-pip.py
 $ echo -n | \
   openssl \
     s_client \
-      -connect belowess.ru:443 2> /dev/null | \
+      -connect kalevala.ru:443 2> /dev/null | \
   sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' \
-  > belowess.ru.crt
-$ ls belowess.ru.crt
+  > kalevala.ru.crt
+$ ls kalevala.ru.crt
 ```
 
 > При необходимости, можно скачать всю цепочку, добавив параметр
@@ -389,7 +388,7 @@ $ ls belowess.ru.crt
 Для того, чтобы посмотреть информацию по скаченному сертификату:
 
 ```sh
-$ openssl x509 -in belowess.ru.crt -noout -text | less
+$ openssl x509 -in kalevala.ru.crt -noout -text | less
 ```
 
 > В случае, если мы просматриваем сертификат в двичном формате `DER`,
@@ -397,7 +396,7 @@ $ openssl x509 -in belowess.ru.crt -noout -text | less
 > программы `openssl`
 
 ```sh
-$ openssl x509 -inform der -in belowess.ru.cer -noout -text
+$ openssl x509 -inform der -in kalevala.ru.cer -noout -text
 ```
 
 Если в одном `pem` файле у нас много сертификатов, то мы можем просмотреть
@@ -420,9 +419,9 @@ sed -n '28,49 p' cert-bundle.pem
 
 ```sh
 $ openssl req \
-  -newkey rsa:4096 -nodes -sha256 -keyout KoshDomain.key \
-  -x509 -days 365 -out KoshDomain.crt \
-  -subj "/C=RU/ST=Vologda/L=Vologda/O=Belowess/OU=NIT/CN=KoshDomain"
+  -newkey rsa:4096 -nodes -sha256 -keyout ilmarinen.key \
+  -x509 -days 365 -out ilmarinen.crt \
+  -subj "/C=RU/ST=Vologda/L=Vologda/O=Kalevala/OU=NIT/CN=Ilmarinen"
 ```
 
 # Java
@@ -473,8 +472,8 @@ $ sudo keytool \
   -cacerts \
   -noprompt \
   -storepass changeit
-  -alias belowess
-  -file belowess.ru.crt
+  -alias kalevala
+  -file kalevala.ru.crt
 ```
 
 С помощью этой команды вы можете импортировать как файлы `pem`, так и `der`.
@@ -494,8 +493,8 @@ $ sudo keytool \
   -keystore $CACERTS_PATH \
   -storepass changeit \
   -noprompt \
-  -alias belowess \
-  -file belowess.ru.crt
+  -alias kalevala \
+  -file kalevala.ru.crt
 ```
 ---
 
@@ -507,7 +506,7 @@ $ keytool \
   -cacerts \
   -storepass changeit \
   -list \
-  -v | grep belowess
+  -v | grep kalevala
 ```
 
 Если мы добавили что-то не то, и хотим удалить:
@@ -518,7 +517,7 @@ $ sudo keytool \
   -cacerts \
   -storepass changeit \
   -noprompt \
-  -alias belowess
+  -alias kalevala
 ```
 
 Все эти процедуры будут необходимы для того, что бы обеспечить `Gradle`
@@ -735,7 +734,7 @@ $ git config core.filemode false
 * Имеем ли мы базовый объект или наследование - `object` и `inherited`
 
 Полагаясь на конвенцию имён мы можем обогатить метаданные структуры привязанной
-к некоторой сущности на `UI`. К примеру если тип объекта `TFrBelowess`, можно
+к некоторой сущности на `UI`. К примеру если тип объекта `TFrKalevala`, можно
 предположить, что `Fr` - это фрейм. Так же можно создать промежуточные классы,
 к примеру `ABWList`. В данном случае `A`, это `abstract`. Данная конвенция
 может заставит валидатор убедиться, что необходимые свойства списка
@@ -766,6 +765,8 @@ for name in `sudo ls -a $1`; do
   sudo du -sh $1/$name
 done
 ```
+---
+Данный проект использует `GitHub` *действие*: [`Markdown link check`][6].
 
 # Полезные ссылки
 
@@ -774,7 +775,6 @@ done
 * [GitLab CI RegExp][3]
 * [CMAKE_BUILD_TYPE (Stackoverflow)][4]
 * [Архитектуры процессора][5]
-* [Тесты в CMake][6]
 * [Linux Локаль][7]
 * [Переменные в CMake][8]
 * [О Microsoft-е][9]
@@ -789,7 +789,7 @@ done
 [3]: https://docs.gitlab.com/ee/ci/jobs/job_control.html#regular-expressions
 [4]: https://stackoverflow.com/questions/48754619/what-are-cmake-build-type-debug-release-relwithdebinfo-and-minsizerel
 [5]: https://habr.com/ru/post/316520
-[6]: https://habr.com/ru/post/433822/
+[6]: https://github.com/gaurav-nelson/github-action-markdown-link-check
 [7]: https://www.baeldung.com/linux/locale-environment-variables
 [8]: https://cliutils.gitlab.io/modern-cmake/chapters/basics/variables.html
 [9]: https://www.kommersant.ru/doc/2260861
@@ -801,7 +801,7 @@ done
 [15]: https://wiki.iarduino.ru/page/encoding-arduino
 [16]: https://code.visualstudio.com/docs/getstarted/settings
 [17]: https://docs.gradle.org/current/userguide/tutorial_using_tasks.html#tutorial_using_tasks
-[18]: https://upstart.ubuntu.com/cookbook
+[18]: https://github.com/kirill85/upstart-cookbook-ru
 [19]: https://zalinux.ru/?p=4490
 [20]: https://habr.com/ru/company/lanit/blog/516330/
 [21]: https://forum.altlinux.org/index.php?topic=37531.0

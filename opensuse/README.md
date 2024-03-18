@@ -1216,8 +1216,8 @@ rpm -qp --scripts oracle-xe-11.2.0-1.0.x86_64.rpm > scripts.sh
 ```sh
 cd /opt/certs
 openssl req \
-  -newkey rsa:4096 -nodes -sha256 -keyout KoshDomain.key \
-  -x509 -days 365 -out KoshDomain.crt \
+  -newkey rsa:4096 -nodes -sha256 -keyout ilmarinen.key \
+  -x509 -days 365 -out ilmarinen.crt \
   -addext "subjectAltName = DNS:$HOSTNAME" \
   -subj "/C=RU/ST=Vologda/L=Vologda/O=Kalevala/OU=NIT/CN=$HOSTNAME"
 ```
@@ -1225,7 +1225,7 @@ openssl req \
 Проверьте, что поле `subjectAltName` проставилось:
 
 ```sh
-openssl x509 -in KoshDomain.crt -text | less
+openssl x509 -in ilmarinen.crt -text | less
 ```
 
 Установим сертификаты в системе:
