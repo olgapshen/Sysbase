@@ -1,6 +1,6 @@
 #!/bin/sh
 
-DEF_KEYSTORE=/srv/android_keys/BelowessAPPKey.jks
+DEF_KEYSTORE=/srv/android_keys/KalevalaAPPKey.jks
 DEF_PASSWORD=/srv/android_keys/password.txt
 
 if [ ! -f $DEF_KEYSTORE ] || [ ! -f $DEF_PASSWORD ]; then
@@ -44,4 +44,4 @@ echo PASSWORD: $PASSWORD
 docker build \
     --build-arg ARG_KEYSTORE=$KEYSTORE \
     --build-arg ARG_PASSWORD=$PASSWORD \
-    -t belowess_gradle .
+    -t kalevala_gradle .

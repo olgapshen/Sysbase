@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-API = 'https://gitlab.belowess.ru/api/v4'
+API = 'https://gitlab.kalevala.ru/api/v4'
 KEEP_FIRST=30
 
 class CleanException(Exception):

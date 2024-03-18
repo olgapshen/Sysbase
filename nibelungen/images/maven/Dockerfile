@@ -5,7 +5,7 @@ COPY deps/ojdbc8.jar /app/deps/
 WORKDIR /app
 RUN mvn install:install-file \
 	-Dfile=deps/core.jar \
-	-DgroupId=ru.belowess \
+	-DgroupId=ru.kalevala \
 	-DartifactId=core \
 	-Dversion=1.0 \
 	-Dpackaging=jar

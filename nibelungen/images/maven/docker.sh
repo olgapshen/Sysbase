@@ -1,4 +1,4 @@
 #!/bin/sh
 
-./copy.sh
-docker build -t belowess_maven .
+sh copy.sh
+docker build -t kalevala_maven .

@@ -42,9 +42,9 @@ if len(sys.argv) == 4:
         --non-interactive \
         --executor "docker" \
         --docker-image {} \
-        --url https://gitlab.belowess.ru/ \
+        --url https://gitlab.kalevala.ru/ \
         --registration-token "{}" \
-        --tls-ca-file="/etc/gitlab-runner/certs/gitlab.belowess.ru.crt" \
+        --tls-ca-file="/etc/gitlab-runner/certs/gitlab.kalevala.ru.crt" \
         --description "{}" \
         --tag-list "{}"'
     cmd = cmd.format(image, token, desc, tags)

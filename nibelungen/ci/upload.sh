@@ -28,7 +28,8 @@ echo VERSION: $VERSION
 echo AR_PATH: $ARCH_PATH
 echo AR_NAME: $ARCH_NAME
 
-URL="https://gitlab.belowess.ru/api/v4/projects/$PID/packages/generic/$PACKAGE/$VERSION/$ARCH_NAME"
+URL="https://gitlab.kalevala.ru/api/v4/projects"
+URL="$URL/$PID/packages/generic/$PACKAGE/$VERSION/$ARCH_NAME"
 
 
 if [ "$TOKEN" != "debug" ]; then

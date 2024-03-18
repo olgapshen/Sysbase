@@ -55,14 +55,14 @@ upload_job:
   tags:
     - nibelungen
   script:
-    - BELOWESS_VERSION=$(./nibelungen/ci/version.sh)
-    - PACKAGE=$(title.sh $CI_COMMIT_BRANCH $BELOWESS_VERSION)
+    - KALEVALA_VERSION=$(./nibelungen/ci/version.sh)
+    - PACKAGE=$(title.sh $CI_COMMIT_BRANCH $KALEVALA_VERSION)
     - upload.sh
         JOB
         $CI_JOB_TOKEN
         $CI_PROJECT_ID
         $PACKAGE
-        $BELOWESS_VERSION
+        $KALEVALA_VERSION
         nibelungen/output/nibelungen.txt
         nibelungen.txt
   dependencies:
@@ -79,13 +79,13 @@ upload_job_master:
   tags:
     - nibelungen
   script:
-    - BELOWESS_VERSION=$(./nibelungen/ci/version.sh)
+    - KALEVALA_VERSION=$(./nibelungen/ci/version.sh)
     - upload.sh
         JOB
         $CI_JOB_TOKEN
         $CI_PROJECT_ID
-        $BELOWESS_VERSION
-        $BELOWESS_VERSION
+        $KALEVALA_VERSION
+        $KALEVALA_VERSION
         nibelungen/output/nibelungen.txt
         nibelungen.txt
   dependencies:
