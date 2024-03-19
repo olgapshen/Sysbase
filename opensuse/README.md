@@ -1362,9 +1362,12 @@ git config --global --edit
 
 > Важная ремарка! По неустановленным причинам, но предположительно в
 > коммерческих целях, `Qt` достаточно трудно собрать из `OpenSource`-ного
-> репозитория (иного у нас нет). Большинство веток и тегов просто не
-> собираются. Проще всего оказывается собрать тот набор исходников, которые
-> можно скачать с [файлового хранилища][6] `release`-ов.
+> репозитория (иного у нас нет)
+
+Большинство веток и тегов просто не собираются. Проще всего было собрать тот
+набор исходников, которые скачивался с файлового хранилища `release`-ов. Он
+распологался на хосте `download.qt.io` по пути `official_releases/qt/`. Сейчас
+доступ туда закрыт.
 
 При этом я не нашла *формальной* разницы между содержимым репозитория
 переключённого на соответствующий тег и содержимым разархивированного
@@ -2356,7 +2359,6 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 [3]: https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units-ru
 [4]: https://code.qt.io/cgit/qt/qt5.git/tree/README.git
 [5]: https://cmake.org/cmake/help/latest/command/find_package.html
-[6]: https://download.qt.io/official_releases/qt/
 [7]: https://wiki.qt.io/Qt_4_versions
 [8]: https://wiki.qt.io/Building_Qt_5_from_Git
 [9]: http://doc.crossplatform.ru/qt/
