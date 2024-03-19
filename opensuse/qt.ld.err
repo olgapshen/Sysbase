@@ -1,0 +1,41 @@
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(png.o): in function `png_compare_ICC_profile_with_sRGB':
+png.c:(.text+0x352): undefined reference to `z_crc32'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: png.c:(.text+0x360): undefined reference to `z_crc32'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: png.c:(.text+0x38a): undefined reference to `z_adler32'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: png.c:(.text+0x398): undefined reference to `z_adler32'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(png.o): in function `png_reset_crc':
+png.c:(.text+0x177b): undefined reference to `z_crc32'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(png.o): in function `png_calculate_crc':
+png.c:(.text+0x17dd): undefined reference to `z_crc32'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: png.c:(.text+0x180f): undefined reference to `z_crc32'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(png.o): in function `png_reset_zstream':
+png.c:(.text+0x1fdd): undefined reference to `z_inflateReset'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngread.o): in function `png_destroy_read_struct':
+pngread.c:(.text+0x46db): undefined reference to `z_inflateEnd'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngrutil.o): in function `png_inflate_claim':
+pngrutil.c:(.text+0x2df): undefined reference to `z_inflateReset2'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: pngrutil.c:(.text+0x320): undefined reference to `z_inflateInit2_'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: pngrutil.c:(.text+0x344): undefined reference to `z_inflateValidate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngrutil.o): in function `png_inflate.constprop.0':
+pngrutil.c:(.text+0x541): undefined reference to `z_inflate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngrutil.o): in function `png_decompress_chunk.constprop.0':
+pngrutil.c:(.text+0x738): undefined reference to `z_inflateReset'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngrutil.o): in function `png_inflate_read.constprop.0.isra.0':
+pngrutil.c:(.text+0x997): undefined reference to `z_inflate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngrutil.o): in function `png_read_IDAT_data':
+pngrutil.c:(.text+0x4a7c): undefined reference to `z_inflate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: pngrutil.c:(.text+0x4b00): undefined reference to `z_inflate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: pngrutil.c:(.text+0x4baa): undefined reference to `z_inflate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngrutil.o): in function `png_zlib_inflate':
+pngrutil.c:(.text+0xe5e): undefined reference to `z_inflate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngwrite.o): in function `png_destroy_write_struct':
+pngwrite.c:(.text+0x1990): undefined reference to `z_deflateEnd'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngwutil.o): in function `png_deflate_claim':
+pngwutil.c:(.text+0x2a4): undefined reference to `z_deflateInit2_'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: pngwutil.c:(.text+0x2ff): undefined reference to `z_deflateEnd'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: pngwutil.c:(.text+0x375): undefined reference to `z_deflateReset'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngwutil.o): in function `png_text_compress.constprop.0':
+pngwutil.c:(.text+0x667): undefined reference to `z_deflate'
+/usr/lib64/gcc/x86_64-suse-linux/13/../../../../x86_64-suse-linux/bin/ld: /home/olga/builds/qt5/qtbase/lib/libqtlibpng.a(pngwutil.o): in function `png_compress_IDAT':
+pngwutil.c:(.text+0x1043): undefined reference to `z_deflate'
+collect2: error: ld returned 1 exit status

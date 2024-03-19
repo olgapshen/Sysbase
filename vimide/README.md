@@ -71,13 +71,10 @@ mail -N
 
 # Vim
 
-Сначала пройдите святой `vimtutor`.
-
-Помощь по конкретному разделу вызывается командой `:h <раздел>`.
-
-Когда открываете помощь, увидите как бы ссылки, они не кликабельны,
-это оглавление и `slug`-и глав. Эти `slug`-и используются так же, как опция
-при вызове `:h`.
+Сначала пройдите святой `vimtutor`. Помощь по конкретному разделу вызывается
+командой `:h <раздел>`. Когда открываете помощь, увидите как бы ссылки, они не
+кликабельны, это оглавление и `slug`-и глав. Эти `slug`-и используются так же,
+как опция при вызове `:h`.
 
 Например:
 
@@ -95,17 +92,19 @@ man vim
 man -L ru vim
 ```
 
+Дополнительно отдельно ознакомьтесь с [инструкцией][3] по копированию слов.
+
 Конфигурация `vim` для пользователя хранится в файле `HOME/.vimrc`,
 настоятельно рекомендуем добавить автонумерцию строк, комметарий в `.vimrc` -
 двойные кавычки: `"`:
 
-> Решить по поводу опций `smarttab` и `expandtab`
+> TODO: Решить по поводу опций `smarttab` и `expandtab`
 
 ```vim
 " Нумерация строк
 set nu
 " Четыре пробела заместо таба
-set tabstop=4 shiftwidth=4 smarttab
+set tabstop=4 shiftwidth=4 expandtab
 " Заприщает vi вместо vim
 set nocompatible " be iMproved, required
 " Интеграция мыши
@@ -121,14 +120,9 @@ set mouse=a
 
 * `:%!xxd` - вывод шестнадцатиричного представления
 * `Ctrl` + `G` - показать имя данного файла
-
-Некоторые полезные моменты:
-
-* Русские страницы `man`-а по раполагаются адресу: `/usr/share/man/ru/man1`
-* Навигация вперёд-назад: `Ctrl + T`, `Ctrl + O`
-* В `Vim` есть команда `python` которая всегда вызывает `python2` и есть
-  команда `python3`
-* Файлы плагинов `Vim` имеют расширение `.vim`
+* `Ctrl + T`, `Ctrl + O` - навигация вперёд-назад
+* `diw` - забор слова в буфер с удалением
+* `yiw` - забор слова в буфер без удаления
 
 Если вы хотите установить локальную конфигурацию пользователя, добавьте раздел
 `[user]` в `.git/config`. Если вы хотите изменить имя коммитера в уже
@@ -156,6 +150,14 @@ git config --global pager.branch false
 git remote set-url origin --push --add url-one
 git remote set-url origin --push --add url-two
 ```
+
+---
+Некоторые полезные заметки:
+
+* Русские страницы `man`-а по раполагаются адресу: `/usr/share/man/ru/man1`
+* В `Vim` есть команда `python` которая всегда вызывает `python2`
+* Отдельно есть команда `python3`
+* Файлы плагинов `Vim` имеют расширение `.vim`
 
 # Vundle
 
@@ -540,6 +542,7 @@ indexer.start(self.leveldb_connection, n_workers)
 
 [1]: https://github.com/vim/vim/blob/master/runtime/pack/dist/opt/termdebug/plugin/termdebug.vim
 [2]: https://www.baeldung.com/linux/vim-gdb-integration
+[3]: https://vim.fandom.com/wiki/Copy,_cut_and_paste
 [9]: https://www.dannyadam.com/blog/2019/05/debugging-in-vim/
 [16]: https://github.com/olgapshen/py-ctrlk
 [17]: https://github.com/olgapshen/CtrlK
