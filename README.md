@@ -673,7 +673,7 @@ done | sort -u
 | `CMake Tools`          | `ms-vscode.cmake-tools`             |
 | `Markdown All in One`  | `yzhang.markdown-all-in-one`        |
 | `PlantUML`             | `jebbs.plantuml`                    |
-| `Qt tools`             | *tonka3000*                         |
+| `Qt tools`             | `tonka3000.qtvsctools`              |
 | `Trailing Spaces`      | `shardulm94.trailing-spaces`        |
 | `Bookmarks`            | `alefragnani.bookmarks`             |
 
