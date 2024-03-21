@@ -1594,9 +1594,7 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 * [Команды imp/exp Oracle-а][1]
 * [О сервисах в Linux][2]
 * [SystemD][3]
-* [README репозитория Qt][4]
 * [Описание команды find_package Cmake][5]
-* [Готовые релизы Qt 5 и 6][6]
 * [Архивы с исходниками Qt 4][7]
 * [Сборка Qt 5 и 6 с исходников][8]
 * [Шпаргалка с командами Docker][11]
@@ -1612,11 +1610,9 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 [1]: https://docs.oracle.com/cd/B19306_01/server.102/b14215/exp_imp.htm
 [2]: https://habr.com/ru/company/otus/blog/424761/
 [3]: https://www.digitalocean.com/community/tutorials/how-to-use-systemctl-to-manage-systemd-services-and-units-ru
-[4]: https://code.qt.io/cgit/qt/qt5.git/tree/README.git
 [5]: https://cmake.org/cmake/help/latest/command/find_package.html
 [7]: https://wiki.qt.io/Qt_4_versions
 [8]: https://wiki.qt.io/Building_Qt_5_from_Git
-[9]: http://doc.crossplatform.ru/qt/
 [10]: https://askubuntu.com/questions/596998/unable-to-install-guest-additions-unknown-filesystem-type-iso9660
 [11]: https://habr.com/ru/company/flant/blog/336654/
 [12]: https://habr.com/ru/post/486200/
@@ -1628,10 +1624,7 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 [20]: https://github.com/francescmm/GitQlient
 [22]: http://qtdocs.narod.ru/4.1.0/doc/html/index.html
 [23]: https://get.opensuse.org/tumbleweed
-[24]: https://code.qt.io/cgit/qt/qt5.git/refs/
 [25]: https://en.opensuse.org/openSUSE:IRC_list
-[26]: https://opencv.org/
-[27]: https://myprogrammingnotes.com/build-qt-ssl-support.html
 [28]: https://download.opensuse.org/repositories/system:/snappy/
 [29]: https://github.com/olgapshen/Sysbase/tree/master/opensuse
 [30]: https://t.me/opensuse
