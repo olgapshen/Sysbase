@@ -5,13 +5,14 @@
 
 Подпроекты:
 
+- [Clonezilla](clonezilla/README.md) - клонирование систем
 - [Нибелунги](nibelungen/README.md) - `Gitlab CI Docker Runner`
 - [OpenSuse](opensuse/README.md) - Особенности работы в `OpenSuse`
+- [Oracle](oracle/README.md) - полезная информация по `Oracle`
+- [Qt](qt/README.md) - Самостоятельная сборка `Qt` и всего сопутствующего
+- [QuantML](quantml/README.md) - задел на небольшой `ML` проект
 - [Scripts](scripts/README.md) - скрипты автоматизации
 - [VimIDE](vimide/README.md) - как кодить в `vim` под `C++`
-- [QuantML](quantml/README.md) - задел на небольшой `ML` проект
-- [PLSQL](plsql/README.md) - полезные блоки кода для работы с `Oracle`-ом
-- [Clonezilla](clonezilla/README.md) - клонирование систем
 
 Переменные среды приводятся без знака `$`, к примеру: `CV_REF`.
 
