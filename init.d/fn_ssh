@@ -1,0 +1,46 @@
+#!/bin/sh
+#
+# nf_ssh: SSH tunel service
+#
+# chkconfig: - 95 5
+# description: Service for SSH tunneling
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+start()
+{
+    echo -n $"Starting nf_ssh: "
+    ssh -f -N -L 1111:127.0.0.1:32123 fn@11.11.11.11
+
+    echo
+}
+
+stop()
+{
+    echo -n $"Shutting down nf_ssh: "
+    TNL_SRV_ID=$(ps -ef | grep 1111:127.0.0.1:32123 | grep -v "grep" | awk '{print $2}')
+    echo $TNL_SRV_ID
+    kill -9 $TNL_SRV_ID
+
+    echo
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+        ;;
+  stop)
+    stop
+        ;;
+  restart)
+    stop
+    start
+    ;;
+  *)
+     echo $"Usage: $0 {start}"
+     exit 1
+esac
+
+exit 0
