@@ -1605,7 +1605,12 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 * [Документация по Linx][18]
 * [Cache в GitLab CI][19]
 * [Документация по Qt4][22]
-* [Используемая материнская плата][32]
+
+<!-- markdown-link-check-disable -->
+
+Невалидируемая [ссылка](https://ru.msi.com/Motherboard/H110M-PRO-VD/Specification) на используемую материнскую плату.
+
+<!-- markdown-link-check-enable -->
 
 [1]: https://docs.oracle.com/cd/B19306_01/server.102/b14215/exp_imp.htm
 [2]: https://habr.com/ru/company/otus/blog/424761/
@@ -1629,7 +1634,6 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 [29]: https://github.com/olgapshen/Sysbase/tree/master/opensuse
 [30]: https://t.me/opensuse
 [31]: https://www.linux.org.ru/forum/general/14648056
-[32]: https://ru.msi.com/Motherboard/H110M-PRO-VD/Specification
 [33]: https://ru.wikipedia.org/wiki/QDevelop
 [34]: https://serverfault.com/questions/348052/how-to-increase-swap-size
 [35]: https://askubuntu.com/questions/178712/how-to-increase-swap-space
