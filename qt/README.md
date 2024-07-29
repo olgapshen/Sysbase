@@ -101,9 +101,9 @@
 `GitLab CI` в контейнере `Docker`-а на `appsrv-1`, и подробно рассмотрена
 далее.
 
-[Вот][2] богатый источник документации по `Qt4`. Перед сборкой `Qt` соберите
-[`OpenSSL`](#openssl). Обратите внимание на опцию `-I /opt/openssl/include`
-в настройках `configure`. Прочитайте [подробнее][3] о сборке `Qt` с `OpenSSL`.
+Перед сборкой `Qt` соберите [`OpenSSL`](#openssl). Обратите внимание на опцию
+`-I /opt/openssl/include` в настройках `configure`. Прочитайте [подробнее][3] о
+сборке `Qt` с `OpenSSL`.
 
 > TODO: проверить, от куда `Qt` тянет библиотеки `OPenSSL`, если мы казываем
 > при сборке лишь папку с заголовками через опцию `-I`
@@ -772,7 +772,6 @@ sudo make install
 * [README репозитория Qt][4]
 
 [1]: https://code.qt.io/cgit/qt/qt5.git/tree/README.git
-[2]: http://doc.crossplatform.ru/qt/
 [3]: https://myprogrammingnotes.com/build-qt-ssl-support.html
 [4]: https://code.qt.io/cgit/qt/qt5.git/refs/
 [5]: https://opencv.org/
