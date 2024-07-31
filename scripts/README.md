@@ -17,6 +17,8 @@
 # Файлы проекта
 
 * [`cisco.sh`](cisco.sh) - разблокировка `Firefall`-а
+* [`hex2txt.py`](hex2txt.py) - перевод `DataGramm`-ы в строковом,
+  шестнадцатиричном представлении в `UTF-8` текст
 * [`port_test.py`](port_test.py) - проверка блокировки порта
 * [`reencode.py`](reencode.py) - перекодирует дерево файлов из `CP1251` в
   `UTF-8`
