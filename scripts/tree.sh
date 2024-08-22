@@ -10,6 +10,10 @@
 # merge E C
 # merge E D
 # merge F E
+# Для подавления вопроса о продолжении установите и экспортируйте следующую
+# переменную
+# NO_ASK="true"
+# export NO_ASK
 # ------------------------------------------------------------------------------
 
 function fetch {
@@ -39,8 +43,10 @@ function merge {
     git merge $2
     if [ $? -ne 0 ]; then exit 1; fi
 
-    read -p "Продолжить? [д/н]: " answer
-    if [ "$answer" != "д" ]; then exit 0; fi
+    if [ "$NO_ASK" != "true" ]; then
+        read -p "Продолжить? [д/н]: " answer
+        if [ "$answer" != "д" ]; then exit 0; fi
+    fi
 
     echo "git push"
     git push
