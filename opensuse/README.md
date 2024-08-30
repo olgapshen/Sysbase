@@ -7,6 +7,8 @@
 `Slackware 7.0`, или иной операционной системы конца 90-х годов, на `OpenSUSE`
 последней версии.
 
+Официальный `Telegramm` [канал][30] поддержки `OpenSUSE`.
+
 # Оглавление
 
 - [OpenSuse](#opensuse)
@@ -35,6 +37,8 @@
   - [Фазы конфигурации](#фазы-конфигурации)
 - [Swap](#swap)
 - [Настройка сети](#настройка-сети)
+  - [Перезапуск интерфейса](#перезапуск-интерфейса)
+  - [Динамическая настройки](#динамическая-настройки)
   - [Статическая настройка сети](#статическая-настройка-сети)
 - [Переменные среды](#переменные-среды)
 - [Настройки](#настройки)
@@ -564,6 +568,67 @@ menuprog SUSE folder xdg_menu --format icewm
 key  "Alt+Ctrl+t"  konsole
 ```
 
+Если ваш системный блок имеет несколько графических карт, то возможно, `IceWM`
+разделит монитор, и при первом входе в систему, вы увидете пустой экран без
+возможности использовать како либо окно. Изучите [комбинации клавиш][39] по
+умолчанию. Нажмите правую клавишу мыши, запустите `xterm`. Если вы не увидете
+окно терминала, то нажмите несколько раз комбинации: `Ctrl+Alt+LeftArrow` /
+`Ctrl+Alt+RightArrow`. Если вы ни чего не увидете то нажмите снова правую
+клавишу мышки, и в меню `Windows` найдите окошко теринала, нажмите на него в
+самомо меню. Далее не нажимая ни чего иногокроме как следующую комбинацию,
+нажмите `Alt+F7`. Тепреь начните двигать мышку, и окно само перепрыгнет в
+видимую область. Нажмите левую клавишу мышки, и окно зафиксируется. Вы можете
+увеличить его во весь экран.
+
+Наберите следующую команду:
+
+```sh
+xrandr -q
+```
+
+Вы получите вывод на подобии:
+
+```
+Screen 0: minimum 320 x 200, current 3840 x 1080, maximum 16384 x 16384
+eDP-1 connected primary 1920x1080+0+0 ...
+VGA-1 disconnected (normal left inverted right x axis y axis)
+DP-1 disconnected (normal left inverted right x axis y axis)
+HDMI-1 connected 1920x1080+1920+0 ...
+```
+
+Если монитор подключён по `HDMI` (а узнать об этом можно по форме контакта
+подключения), то строка `eDP-1 connected` подсказывает нам о проблеме.
+
+Наберите:
+
+```sh
+xrandr --output eDP-1 --off
+```
+
+Теперь вы должны увидеть меню `IceWM` в нижней части экрана. Зафиксируйте
+решение. Создайте файл `$HOME/.icewm/startup`, запишите туда `shebang` и данную
+комманду, затем выдайте ему права:
+
+```
+chmod u+x $HOME/.icewm/startup
+```
+
+Перегрузите систему. После перегрузки у вас должен подключится только один
+монитор. В идеале монитор `eDP-1` нужно отключить на уровне `udev`-а.
+
+А вот вом рассказ о первом путешествии моей мышки с трану зазеркалья `IceWM`:
+
+> I moved the mouse to the left the boundary of The Visible World. The mouse
+> touched the border. She squeaked in surprise! There wasn't border! Suddenly
+> she jumped into the void, to the Darkness. Мy mouse felt the Emptiness there,
+> very much Emptiness. She started to move forward and forward. I called her
+> back.\
+> In very border of two worlds - "The World of the living" and "Ice Wims Dale" -
+> "The World of the dead" my mouse, as a cat, catch the hem of the dress of
+> Firefox!\
+> "Eh!" - shouted the Fox! - "What do you do?!".\
+> The mouse squeaked happily! She took the Fox from the Death to the Life!
+
 ### IceWM и терминал
 
 После настройки необходимых файлов, перегрузите среду следующей командой:
@@ -602,78 +667,6 @@ setxkbmap \
 горлышками бутылки в сравнении со среднестатистической станцией разработки:
 
 > `3.7 Gi RAM`, `3.6 GHz x 4`
-
-В попытках оптимизировать систему и найти оптимальные настройки, я написала
-небольшой пост в поддержку `OpenSUSE` на `Telegramm` [канале][30]:
-
----
-Hi! I sorry that this is kind of longread, but I have much question accumulated
-for months of work. We have old point of sale system run with `Qt4/Qr3Support`
-over `Slackware 7.0` 32 bit with `qmake` build configuration system. I porting
-it to `Qt5` `v5.15.12-lts-lgpl` over last `OpenSUSE` 64 bit with `CMake` build
-configuration system. I write kind of [blog][29] for this project, sorry for
-Russian. I have computer with 4 `Gb RAM`, and I can not demand more. I can, but
-I should not, thus old stations have 4 `Gb RAM` also. I need to make two
-distributions for our point of sale station. One - `POS` for market
-(`POS` prod) and another - development environment (`POS` dev). I decided to
-use `Leap` for `POS` prod and `Tumbleweed` for `POS` dev. I started with
-`Tumbleweed` and from beginning get noising auth reqest from Plasma.
-
-![AuthRequest](doc/img/PlasmaAuth.png "Noising Auth Request")
-
-I joined to `IRC` chat `#openSUSE` on `liberachat`. People there told me that
-if I will create account on `OpenSUSE`, they will join me to `Matrix`. I made
-account: `ya.olgapshenichnikova@yandex.ru`. I continued with my project. I
-compiled several frameworks: `SSL`, `Qt`, `OpenCV` and other. `SSL` - it was
-required by `Qt`. `Qt` doesn't links `ssl` installed by default nor find
-headers. `libssl` package doesn't solves the problem. `Qt` successfully built,
-but leaves `QtDoc` unbuilt thus issues with `llvm`. It was standart warning:
-
-> WARNING: QDoc will not be compiled, probably because libclang could not be
-> located. This means that you cannot build the Qt documentation\
-> \
-> Either ensure that llvm-config is in your PATH environment variable, or set
-> LLVM_INSTALL_DIR to the location of your llvm installation.\
-> On Linux systems, you may be able to install libclang by installing the
-> libclang-dev or libclang-devel package, depending on your distribution.\
-> On macOS, you can use Homebrew's llvm package.\
-> On Windows, you must set LLVM_INSTALL_DIR to the installation path.
-
-`OpenCV` we need for our "product recognition" when selling. I need also good
-`Git UI` such as `TortoiseGit` for `Windows`. I tried `Guitar` and `GitQlient`,
-but it is really lack of functionality... `Guitar` isn't run now at all. I
-tried it year ago. `GitQlient` have no ability even to change size of frames in
-`UI` window... Despite the fact, that we will use `QtCreator` (I didn't built
-it yet) we also need `Visual Studio Code`. I need make our application be build
-both with `QtCreator` and `VSCode`. I found that `Tumbleweed` sheeped with
-custom `Code - OSS` from `obs://build.opensuse.org/devel:tools:ide`.
-But! It just have blue `C/C++ Extension Pack` from `franneck94` and it doesn't
-works (`F12` doesn't works). The red `C/C++ Extension Pack` by `Microsoft`
-isn't available in `Code - OSS`. I removed `Code - OSS` and installed `Code`
-from `https://packages.microsoft.com/yumrepos/vscode`. Now the red
-`C/C++ Extension Pack` was available and `F12` now working. But! It was very
-very very slow. I tried `Xfce` instead of `Plasma`. It was still slow. We have
-320 `cpp` files, by the way. It is importatnt to say that `Plasma` is kind of
-very good environment. I watch resources used by in `htop`, and admitted that
-it is effective enough. I removed last `Code` and installed `Code - OSS` back.
-It was strange, but red `C/C++ Extension Pack` now became available. It became
-faster, but still slow. I think about `IceWM`, but just issue of keyboard
-switchind holds me from this step. I don't know how slow `QtCreator` will be.
-
-Now several questions related to things I mentioned above:
-
-1. Is there some known issue with `libclang` for `Qt` build?
-2. Is there some known issue with `libssl` for `Qt` build?
-3. What about noising auth request from `Plasma`?
-4. Where is best chat to ask all my questions?
-5. Is there `Git UI` for `OpenSUSE` such as `TortoiseGit`?
-6. Why red `C/C++ Extension Pack` wasn't available in `Code OSS`?
-7. Why it became available in `Code OSS` after oficial `Code` installation?
-8. Why blue `C/C++ Extension Pack` don't gives `C++` editor functionality?
-9. Is `Plasma` not much worst than `Xfce`/`LXDE`?
-10. Is it possible to run `VStudio Code` on 320 `cpp` files with 4 `Gb` `RAM`?
-11. If I need to rise question about RAM increasing?
----
 
 ## Фазы конфигурации
 
@@ -873,6 +866,48 @@ Telnet('192.168.1.112', 1521).interact()
 
 > Если вы запускаете виртуальную машину, всегда выберайте тип сети:
 > *сетевой мост*
+
+## Перезапуск интерфейса
+
+Определите какой интерфейс у вас активен, командой:
+
+```
+ip a
+```
+
+Допустим, это `eth0`. Перегрузите его:
+
+```
+ifdown eth0
+ifup eth0
+```
+
+## Динамическая настройки
+
+По умолчанию настройка сети должна выдаваться по `DHCP`. Вот содержимое файла
+`/etc/sysconfig/network/ifcfg-eth0` по умолчанию:
+
+```
+BOOTPROTO='dhcp'
+STARTMODE='auto'
+ZONE=public
+```
+
+Вот содержимое папки `/etc/sysconfig/network` по умолчанию:
+
+```
+-rw-r--r-- 1 root root 9.5K Aug 29 18:01 config
+-rw-r--r-- 1 root root  16K Aug 29 18:01 dhcp
+-rw------- 1 root root   46 Aug 29 18:04 ifcfg-eth0
+-rw-r--r-- 1 root root   34 Aug 29 12:48 ifcfg-eth0.bak
+-rw-r--r-- 1 root root   34 Aug 29 11:09 ifcfg--h
+-rw------- 1 root root  147 May  9 13:08 ifcfg-lo
+-rw-r--r-- 1 root root  22K Aug  1  2022 ifcfg.template
+drwxr-xr-x 1 root root    0 Mar 15  2022 if-down.d
+drwxr-xr-x 1 root root    0 Mar 15  2022 if-up.d
+drwx------ 1 root root    0 Mar 15  2022 providers
+drwxr-xr-x 1 root root   38 Aug 29 17:50 scripts
+```
 
 ## Статическая настройка сети
 
@@ -1631,7 +1666,6 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 [23]: https://get.opensuse.org/tumbleweed
 [25]: https://en.opensuse.org/openSUSE:IRC_list
 [28]: https://download.opensuse.org/repositories/system:/snappy/
-[29]: https://github.com/olgapshen/Sysbase/tree/master/opensuse
 [30]: https://t.me/opensuse
 [31]: https://www.linux.org.ru/forum/general/14648056
 [33]: https://ru.wikipedia.org/wiki/QDevelop
@@ -1640,3 +1674,4 @@ docker build -f DockerfileOpenSuse -t kalevala_suse .
 [36]: https://forums.opensuse.org/t/btrfs-failed-at-checking-quota-groups-when-resizing-partition/171537
 [37]: https://download.opensuse.org/tumbleweed/iso/
 [38]: https://ice-wm.org/manual/
+[39]: https://ice-wm.org/manual/icewm-6.html
