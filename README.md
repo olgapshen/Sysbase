@@ -796,7 +796,9 @@ done
 * [TTY резолюция][23]
 
 [1]: https://habr.com/ru/post/417521
+<!-- markdown-link-check-disable -->
 [2]: https://jamielinux.com/docs/openssl-certificate-authority/certificate-revocation-lists.html
+<!-- markdown-link-check-enable-->
 [3]: https://docs.gitlab.com/ee/ci/jobs/job_control.html#regular-expressions
 [4]: https://stackoverflow.com/questions/48754619/what-are-cmake-build-type-debug-release-relwithdebinfo-and-minsizerel
 [5]: https://habr.com/ru/post/316520
