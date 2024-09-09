@@ -934,13 +934,12 @@ drwxr-xr-x 1 root root   38 Aug 29 17:50 scripts
 | `GATEWAY`    | `13.14.11.1`    |
 | `NAMESERVER` | `8.8.8.8`       |
 
-`/etc/sysconfig/network/ifcfg-eth0`
+Отредактируйте файл `/etc/sysconfig/network/ifcfg-eth0`:
 
 ```
 BOOTPROTO='static'
 BROADCAST='13.14.11.255'
 IPADDR='13.14.11.143'
-NAME='FnEthernet'
 NETMASK='255.255.255.0'
 NETWORK='13.14.11.0'
 STARTMODE='auto'
@@ -948,11 +947,17 @@ USERCONTROL='no'
 ZONE=public
 ```
 
-`/etc/sysconfig/network/route-eth0`
+Создайте файл `/etc/sysconfig/network/ifroute-eth0`:
 
 ```
 13.14.11.0 13.14.11.1  255.255.255.0 eth0
-defualt 13.14.11.1 0.0.0.0 eth0
+default 13.14.11.1 0.0.0.0 eth0
+```
+
+Проверьте содержимое файла `/etc/resolv.conf`:
+
+```
+nameserver 8.8.8.8
 ```
 
 Для разблокировки `firewall`-а, если такой имеется в вашей сети, используйте
