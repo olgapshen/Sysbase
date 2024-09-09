@@ -45,6 +45,7 @@
 - [Настройки](#настройки)
   - [Суперпользователь](#суперпользователь)
   - [Имя хоста](#имя-хоста)
+  - [Настройка SSH](#настройка-ssh)
   - [Настройка vim](#настройка-vim)
   - [Удалённый терминал](#удалённый-терминал)
   - [LocateDB](#locatedb)
@@ -1012,6 +1013,23 @@ sudo hostnamectl set-hostname <HOSTNAME>
 
 ```
 192.168.1.30     kalevala kalevala.ru
+```
+
+## Настройка SSH
+
+При подключении к разным хостам по `SSH` у вас может быть следующая ошибка:
+
+> Unable to negotiate with 10.11.8.73 port 22: no matching host key type found.
+> Their offer: ssh-rsa,ssh-dss
+
+Создайте файл `~/.ssh/config` и для каждого хоста с подобной ошибкой добавьте
+блок на подобии:
+
+```
+Host 10.11.12.13
+    User root
+    PubkeyAcceptedAlgorithms +ssh-rsa
+    HostkeyAlgorithms +ssh-rsa
 ```
 
 ## Настройка vim
