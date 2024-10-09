@@ -634,6 +634,34 @@ konsole
 QT_DEBUG_PLUGINS=1 konsole
 ```
 
+---
+Очень полезный скрипт для поиска неустановленных пакетов требуемых плагинами `Qt`:
+
+```sh
+#!/bin/bash
+
+# Файл search_qt_deps.sh
+
+QT_VER=5.15.12
+LIB=$1
+
+for l in /usr/lib64/libQt5*.so.$QT_VER; do
+    echo $l;
+    objdump -p $l | grep NEEDED | sed "s/^/\t"/;
+done | grep $LIB | awk '{print $2}' | \
+while read lib; do
+    echo $lib;
+    zypper se --provides $lib;
+done
+```
+
+Вызовите скрипт передав часть имени плагина, который не грузится, к примеру
+`xcb`:
+
+```sh
+sh search_qt_deps.sh xcb
+```
+
 # OpenCV
 
 `OpenCV` собирается с [официального сайта][5].
