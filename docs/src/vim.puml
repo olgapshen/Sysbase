@@ -1,0 +1,52 @@
+@startuml vim
+
+title Диаграмма состояний редактора Vim
+
+state "Относительные команды" as rel {
+    state "Команда" as rel_cmd : Ввод команды
+    state "Модификатор" as rel_mod : Ввод охвата
+    state "Навигация" as rel_nav : Ввод шага
+    [*] -down-> rel_cmd : Команда
+    [*] -down-> rel_mod : Охват
+    [*] -down-> rel_nav : шаг
+    rel_cmd -down-> rel_mod
+    rel_mod -down-> rel_nav
+    rel_cmd -down-> rel_nav
+    rel_nav -down-> [*]
+}
+state "Абсолютные команды" as abs {
+    state "Команда оболочки" as abs_shl {
+        state "Команда" as abs_shl_cmd : Ввод команды
+        state "Вывод" as abs_shl_out : Вывод команды
+        state "Модификатор" as abs_shl_mod : Ввод охвата
+        state "Команда" as abs_shl_mod_cmd : Ввод команды
+        [*] -down-> abs_shl_mod : Охват
+        [*] -down-> abs_shl_cmd : Команда
+        abs_shl_mod -down-> abs_shl_mod_cmd : Команда
+        abs_shl_mod_cmd -down-> [*] : Enter
+        abs_shl_cmd -down-> abs_shl_out : Enter
+        abs_shl_out -down-> [*] : Enter
+    }
+
+    state "Команда" as abs_cmd : Ввод команды
+    state "Модификатор" as abs_mod : Ввод охвата
+    state "Команда" as abs_mod_cmd : Ввод команды
+    [*] -up-> abs_shl : Ввод знака "!"
+    [*] -down-> abs_cmd : Команда
+    [*] -right-> abs_mod : Охват
+    abs_mod -down-> abs_mod_cmd : Команда
+    abs_mod_cmd -down-> [*] : Enter
+    abs_cmd -down-> [*] : Enter
+}
+state "Ввод текста" as txt : Режим ввода текста
+
+[*] -down-> rel
+rel -> abs : Ввод знака ":"
+abs -> rel : Enter
+rel -left-> txt : Команда ввода текста
+txt -right-> rel : ESC
+abs -down-> [*] : Ввод последовательности ":q"
+rel -> rel
+
+
+@enduml
