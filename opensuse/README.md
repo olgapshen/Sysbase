@@ -59,6 +59,7 @@
   - [Установка Xfce](#установка-xfce)
 - [Zypper](#zypper)
   - [RPM](#rpm)
+  - [Zypper - символы отладки](#zypper---символы-отладки)
 - [Сертификаты](#сертификаты)
   - [OS](#os)
   - [Java](#java)
@@ -1145,7 +1146,7 @@ mkdir $APPS
 Устанавливаем `Xrdp`:
 
 ```sh
-sudo zypper update
+sudo zypper refresh
 sudo zypper install xrdp
 sudo systemctl enable xrdp
 sudo systemctl start xrdp
@@ -1261,6 +1262,11 @@ rpm -qp --scripts oracle-xe-11.2.0-1.0.x86_64.rpm > scripts.sh
 # Просмотр содержимого пакета
 rpm -ql libopenssl-3-devel
 ```
+
+## Zypper - символы отладки
+
+Для отладки системных библиотек, типа `libgcc_s.so.1`, вам необходимы символы
+отладки, так как большинство из них собраны без оных.
 
 # Сертификаты
 
