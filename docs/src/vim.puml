@@ -5,7 +5,7 @@ title Диаграмма состояний редактора Vim
 state "Относительные команды" as rel {
     state "Команда" as rel_cmd : Ввод команды
     state "Модификатор" as rel_mod : Ввод охвата
-    state "Навигация" as rel_nav : Ввод шага
+    state "Движение" as rel_nav : Ввод шага
     [*] -down-> rel_cmd : Команда
     [*] -down-> rel_mod : Охват
     [*] -down-> rel_nav : шаг
